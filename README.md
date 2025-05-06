@@ -2,10 +2,8 @@
 
 # 🧠💥 AI-Powered DDoS Detection System
 
-A real-time 🕒 DDoS attack detection system using machine learning 🤖 and network traffic analysis 🌐.
-
----
-
+A real-time 🕒 DDoS attack detection system using machine learning 🤖 and network traffic analysis 🌐
+```
 ## 🚀 Features
 
 * 📡 Real-time network traffic monitoring
@@ -23,8 +21,8 @@ A real-time 🕒 DDoS attack detection system using machine learning 🤖 and ne
 * 🖥️ Web-based dashboard
 * 🗃️ Attack logging and analysis
 
----
 
+```
 ## 📦 Prerequisites
 
 * 🐍 Python 3.8+
@@ -33,7 +31,8 @@ A real-time 🕒 DDoS attack detection system using machine learning 🤖 and ne
 * 🧰 Network interface with promiscuous mode support
 * 🔐 Administrative privileges for packet capture
 
----
+
+```
 
 ## ⚙️ Installation
 
@@ -63,7 +62,8 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
 
----
+
+```
 
 ## 🧪 Usage
 
@@ -84,7 +84,8 @@ python ddos_detector.py
 * Open `index.html` in your browser 🧭
 * Dashboard auto-connects to backend 🧩
 
----
+
+```
 
 ## 🏗️ System Architecture
 
@@ -94,7 +95,8 @@ python ddos_detector.py
 * 💾 Data Storage: MongoDB 📚, Redis 🧮
 * 🔍 Network Analysis: Scapy 🕷️ and PyShark 🦈
 
----
+
+```
 
 ## 🔐 Security Considerations
 
@@ -103,5 +105,6 @@ python ddos_detector.py
 * 🧠 Monitor system resource usage
 * 🆕 Regularly retrain ML models
 
----
+
+```
 
