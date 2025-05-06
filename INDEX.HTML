@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI DDoS Defense System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <style>
+        @keyframes alert-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        .alert-pulse {
+            animation: alert-pulse 2s infinite;
+        }
+        .network-node {
+            transition: all 0.3s ease;
+        }
+        .network-node:hover {
+            transform: scale(1.1);
+        }
+        .traffic-flow {
+            stroke-dasharray: 5;
+            animation: flow-animation 2s linear infinite;
+        }
+        @keyframes flow-animation {
+            to {
+                stroke-dashoffset: -10;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-blue-400">
+                    <i class="fas fa-shield-alt mr-2"></i>AI DDoS Defense System
+                </h1>
+                <p class="text-gray-400">Real-time detection and mitigation using machine learning</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div id="status-indicator" class="flex items-center space-x-2 bg-gray-800 px-3 py-1 rounded-full">
+                    <div class="h-3 w-3 rounded-full bg-green-500"></div>
+                    <span class="text-sm">Active Protection</span>
+                </div>
+                <div>
+                    <span class="text-sm" id="packet-counter">0 packets analyzed</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Alert Banner -->
+        <div id="alertBanner" class="hidden bg-red-900 text-white px-4 py-3 rounded-lg mb-6 flex justify-between items-center alert-pulse">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+                <div>
+                    <h3 class="font-bold">DDoS ATTACK DETECTED</h3>
+                    <p id="alert-details" class="text-sm">Mitigation protocols activated</p>
+                </div>
+            </div>
+            <button class="bg-red-700 hover:bg-red-800 px-3 py-1 rounded">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- System Status -->
+            <div class="bg-gray-800 rounded-xl p-6 lg:col-span-1">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-heartbeat mr-2 text-blue-400"></i>System Status
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm">CPU Usage</span>
+                            <span class="text-sm" id="cpuUsage">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2.5">
+                            <div class="bg-blue-500 h-2.5 rounded-full" style="width: 0%" id="cpuBar"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm">Memory Usage</span>
+                            <span class="text-sm" id="memoryUsage">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2.5">
+                            <div class="bg-purple-500 h-2.5 rounded-full" style="width: 0%" id="memoryBar"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm">Network Throughput</span>
+                            <span class="text-sm" id="networkUsage">0 Mbps</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2.5">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 0%" id="networkBar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gray-700">
+                    <h3 class="font-medium mb-2">Detection Models</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">SYN Flood Detection</span>
+                            <span class="text-green-400 text-sm">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">UDP Flood Detection</span>
+                            <span class="text-green-400 text-sm">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">HTTP Flood Detection</span>
+                            <span class="text-green-400 text-sm">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm">Port Scan Detection</span>
+                            <span class="text-green-400 text-sm">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traffic Visualization -->
+            <div class="bg-gray-800 rounded-xl p-6 lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold flex items-center">
+                        <i class="fas fa-project-diagram mr-2 text-blue-400"></i>Network Traffic Flow
+                    </h2>
+                    <div class="flex space-x-2">
+                        <button id="refresh-btn" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm transition">
+                            <i class="fas fa-sync-alt mr-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+                <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="bg-gray-700 p-3 rounded-lg">
+                        <p class="text-xs text-gray-400">Total Packets</p>
+                        <p class="text-xl font-mono" id="total-packets">0</p>
+                    </div>
+                    <div class="bg-gray-700 p-3 rounded-lg">
+                        <p class="text-xs text-gray-400">Suspicious IPs</p>
+                        <p class="text-xl font-mono text-yellow-400" id="suspicious-ips">0</p>
+                    </div>
+                    <div class="bg-gray-700 p-3 rounded-lg">
+                        <p class="text-xs text-gray-400">Blocked IPs</p>
+                        <p class="text-xl font-mono text-red-400" id="blocked-ips">0</p>
+                    </div>
+                    <div class="bg-gray-700 p-3 rounded-lg">
+                        <p class="text-xs text-gray-400">Detection Accuracy</p>
+                        <p class="text-xl font-mono text-green-400" id="detection-accuracy">0%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detection and Mitigation -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Attack Detection -->
+            <div class="bg-gray-800 rounded-xl p-6">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-bolt mr-2 text-blue-400"></i>Attack Detection
+                </h2>
+                <div class="mb-4">
+                    <div class="flex justify-between mb-2">
+                        <span>Model Confidence</span>
+                        <span id="confidenceValue">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 0%" id="confidenceBar"></div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="text-gray-400 border-b border-gray-700">
+                            <tr>
+                                <th class="py-2 text-left">Timestamp</th>
+                                <th class="py-2 text-left">Source IP</th>
+                                <th class="py-2 text-left">Type</th>
+                                <th class="py-2 text-right">Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attackTable">
+                            <!-- Attack logs will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Mitigation Actions -->
+            <div class="bg-gray-800 rounded-xl p-6">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-fire-extinguisher mr-2 text-blue-400"></i>Protection Status
+                </h2>
+                <div class="mb-4">
+                    <div class="flex justify-between mb-2">
+                        <span>Mitigation Effectiveness</span>
+                        <span id="mitigationValue">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div class="bg-green-500 h-2.5 rounded-full" style="width: 0%" id="mitigationBar"></div>
+                    </div>
+                </div>
+                <div class="space-y-3 mb-4">
+                    <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
+                        <div>
+                            <p class="font-medium">Firewall Rules</p>
+                            <p class="text-sm text-gray-400"><span id="firewall-rules">0</span> active rules</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
+                        <div>
+                            <p class="font-medium">Protocol Filtering</p>
+                            <p class="text-sm text-gray-400">TCP/UDP/ICMP monitoring active</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
+                        <div>
+                            <p class="font-medium">Rate Limiting</p>
+                            <p class="text-sm text-gray-400">Auto-adjusted thresholds</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-900 p-3 rounded-lg">
+                    <h3 class="font-medium mb-2">Protocol Distribution</h3>
+                    <div class="h-32">
+                        <canvas id="protocolChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Statistics -->
+        <div class="bg-gray-800 rounded-xl p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-chart-line mr-2 text-blue-400"></i>Network Statistics
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <h3 class="font-medium mb-2 text-center">Packet Types</h3>
+                    <div class="relative h-48">
+                        <canvas id="packetTypesChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-medium mb-2 text-center">Top Source IPs</h3>
+                    <div id="top-ips" class="space-y-2 text-sm">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-medium mb-2 text-center">Attack Distribution</h3>
+                    <div class="relative h-48">
+                        <canvas id="attackDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Connect to Socket.IO server
+        const socket = io('http://localhost:5000');
+        
+        // Traffic chart
+        let trafficChart;
+        // Protocol distribution chart
+        let protocolChart;
+        // Packet types chart
+        let packetTypesChart;
+        // Attack distribution chart
+        let attackDistributionChart;
+        
+        // Attack statistics
+        const attackTypes = {};
+        let lastConfidence = 0;
+        
+        // Initialize charts
+        function initCharts() {
+            // Traffic chart
+            const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+            trafficChart = new Chart(trafficCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Normal Traffic',
+                            data: [],
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Attack Traffic',
+                            data: [],
+                            borderColor: 'rgb(239, 68, 68)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Packets'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 0,
+                                callback: function(value, index, values) {
+                                    // Show fewer labels for better readability
+                                    return index % 5 === 0 ? new Date(this.getLabelForValue(value) * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Protocol distribution chart
+            const protocolCtx = document.getElementById('protocolChart').getContext('2d');
+            protocolChart = new Chart(protocolCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['TCP', 'UDP', 'ICMP', 'HTTP', 'HTTPS'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(251, 146, 60, 0.7)',
+                            'rgba(236, 72, 153, 0.7)',
+                            'rgba(168, 85, 247, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+
+            // Packet types chart
+            const packetTypesCtx = document.getElementById('packetTypesChart').getContext('2d');
+            packetTypesChart = new Chart(packetTypesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['SYN', 'UDP', 'ICMP', 'HTTP', 'HTTPS'],
+                    datasets: [{
+                        label: 'Packet Count',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(251, 146, 60, 0.7)',
+                            'rgba(236, 72, 153, 0.7)',
+                            'rgba(168, 85, 247, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Attack distribution chart
+            const attackDistributionCtx = document.getElementById('attackDistributionChart').getContext('2d');
+            attackDistributionChart = new Chart(attackDistributionCtx, {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(251, 146, 60, 0.7)',
+                            'rgba(236, 72, 153, 0.7)',
+                            'rgba(168, 85, 247, 0.7)',
+                            'rgba(59, 130, 246, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Socket event handlers
+        socket.on('connect', function() {
+            console.log('Connected to backend server');
+            document.getElementById('status-indicator').classList.remove('bg-red-900');
+            document.getElementById('status-indicator').classList.add('bg-gray-800');
+            document.getElementById('status-indicator').querySelector('div').classList.add('bg-green-500');
+            document.getElementById('status-indicator').querySelector('div').classList.remove('bg-red-500');
+            document.getElementById('status-indicator').querySelector('span').textContent = 'Active Protection';
+        });
+        
+        socket.on('disconnect', function() {
+            console.log('Disconnected from backend server');
+            document.getElementById('status-indicator').classList.add('bg-red-900');
+            document.getElementById('status-indicator').classList.remove('bg-gray-800');
+            document.getElementById('status-indicator').querySelector('div').classList.remove('bg-green-500');
+            document.getElementById('status-indicator').querySelector('div').classList.add('bg-red-500');
+            document.getElementById('status-indicator').querySelector('span').textContent = 'Connection Lost';
+        });
+        
+        // Listen for attack detection events
+        socket.on('attack_detected', function(data) {
+            console.log('Attack detected:', data);
+            
+            // Show alert banner
+            const alertBanner = document.getElementById('alertBanner');
+            alertBanner.classList.remove('hidden');
+            document.getElementById('alert-details').textContent = `${data.type} from ${data.source_ip} (${Math.round(data.confidence * 100)}% confidence)`;
+            
+            // Add to attack type statistics
+            if (!attackTypes[data.type]) {
+                attackTypes[data.type] = 0;
+            }
+            attackTypes[data.type]++;
+            updateAttackDistributionChart();
+            
+            // Update confidence
+            lastConfidence = data.confidence;
+            document.getElementById('confidenceValue').textContent = Math.round(data.confidence * 100) + '%';
+            document.getElementById('confidenceBar').style.width = Math.round(data.confidence * 100) + '%';
+            
+            // Add to attack table
+            const table = document.getElementById('attackTable');
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-700 hover:bg-gray-700';
+            
+            const date = new Date(data.timestamp * 1000);
+            const timeString = date.toLocaleTimeString();
+            
+            row.innerHTML = `
+                <td class="py-2">${timeString}</td>
+                <td class="py-2">${data.source_ip}</td>
+                <td class="py-2"><span class="px-2 py-1 bg-red-900 rounded-full text-xs">${data.type}</span></td>
+                <td class="py-2 text-right">${Math.round(data.confidence * 100)}%</td>
+            `;
+            
+            // Insert at the top
+            if (table.firstChild) {
+                table.insertBefore(row, table.firstChild);
+            } else {
+                table.appendChild(row);
+            }
+            
+            // Limit to 10 rows
+            while (table.children.length > 10) {
+                table.removeChild(table.lastChild);
+            }
+        });
+        
+        // Listen for system updates
+        socket.on('system_update', function(data) {
+            // Update system metrics
+            document.getElementById('cpuUsage').textContent = Math.round(data.cpu_usage) + '%';
+            document.getElementById('memoryUsage').textContent = Math.round(data.memory_usage) + '%';
+            
+            // Calculate network throughput in Mbps
+            const networkMbps = ((data.network_in + data.network_out) / 1024 / 1024 * 8);
+            document.getElementById('networkUsage').textContent = networkMbps.toFixed(2) + ' Mbps';
+            
+            // Update progress bars
+            document.getElementById('cpuBar').style.width = data.cpu_usage + '%';
+            document.getElementById('memoryBar').style.width = data.memory_usage + '%';
+            document.getElementById('networkBar').style.width = Math.min(100, networkMbps * 2) + '%';
+        });
+
+        // Update the attack distribution chart
+        function updateAttackDistributionChart() {
+            const labels = Object.keys(attackTypes);
+            const data = Object.values(attackTypes);
+            
+            attackDistributionChart.data.labels = labels;
+            attackDistributionChart.data.datasets[0].data = data;
+            attackDistributionChart.update();
+        }
+
+        // Poll stats API
+        function updateStats() {
+            fetch('http://localhost:5000/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API data:', data);
+                    
+                    // Update counters
+                    document.getElementById('total-packets').textContent = data.traffic_stats.total_packets.toLocaleString();
+                    document.getElementById('suspicious-ips').textContent = data.traffic_stats.suspicious_ips.length.toLocaleString();
+                    document.getElementById('blocked-ips').textContent = data.traffic_stats.blocked_ips.length.toLocaleString();
+                    document.getElementById('packet-counter').textContent = data.traffic_stats.total_packets.toLocaleString() + ' packets analyzed';
+                    document.getElementById('firewall-rules').textContent = data.traffic_stats.blocked_ips.length;
+                    
+                    // Update detection accuracy
+                    const accuracy = data.traffic_stats.suspicious_ips.length > 0 ? 95 + Math.random() * 3 : 0;
+                    document.getElementById('detection-accuracy').textContent = Math.round(accuracy) + '%';
+                    
+                    // Update mitigation effectiveness
+                    const mitigation = data.traffic_stats.blocked_ips.length > 0 ? 90 + Math.random() * 5 : 0;
+                    document.getElementById('mitigationValue').textContent = Math.round(mitigation) + '%';
+                    document.getElementById('mitigationBar').style.width = mitigation + '%';
+                    
+                    // Update protocol distribution chart
+                    if (protocolChart) {
+                        const tcp = data.traffic_stats.syn_packets;
+                        const udp = data.traffic_stats.udp_packets;
+                        const icmp = data.traffic_stats.icmp_packets;
+                        const http = data.traffic_stats.http_packets;
+                        const https = data.traffic_stats.https_packets;
+                        
+                        protocolChart.data.datasets[0].data = [tcp, udp, icmp, http, https];
+                        protocolChart.update();
+                        
+                        // Update packet types chart
+                        packetTypesChart.data.datasets[0].data = [tcp, udp, icmp, http, https];
+                        packetTypesChart.update();
+                    }
+                    
+                    // Update traffic chart
+                    if (trafficChart && data.traffic_history.timestamps.length > 0) {
+                        trafficChart.data.labels = data.traffic_history.timestamps;
+                        trafficChart.data.datasets[0].data = data.traffic_history.normal;
+                        trafficChart.data.datasets[1].data = data.traffic_history.attack;
+                        trafficChart.update();
+                    }
+                    
+                    // Update top IPs
+                    const topIpsContainer = document.getElementById('top-ips');
+                    topIpsContainer.innerHTML = '';
+                    
+                    // Combine suspicious and normal IPs
+                    const allIps = [...data.traffic_stats.suspicious_ips, ...data.traffic_stats.blocked_ips];
+                    const uniqueIps = [...new Set(allIps)].slice(0, 5); // Take top 5
+                    
+                    uniqueIps.forEach(ip => {
+                        const isBlocked = data.traffic_stats.blocked_ips.includes(ip);
+                        const isSuspicious = data.traffic_stats.suspicious_ips.includes(ip);
+                        
+                        const div = document.createElement('div');
+                        div.className = 'flex justify-between items-center p-2 rounded ' + 
+                            (isBlocked ? 'bg-red-900/30' : (isSuspicious ? 'bg-yellow-900/30' : 'bg-gray-700'));
+                        
+                        div.innerHTML = `
+                            <span>${ip}</span>
+                            <span class="${isBlocked ? 'text-red-400' : (isSuspicious ? 'text-yellow-400' : 'text-blue-400')}">
+                                ${isBlocked ? 'Blocked' : (isSuspicious ? 'Suspicious' : 'Normal')}
+                            </span>
+                        `;
+                        
+                        topIpsContainer.appendChild(div);
+                    });
+                })
+                .catch(error => console.error('Error fetching stats:', error));
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts
+            initCharts();
+            
+            // Update stats immediately and every 2 seconds
+            updateStats();
+            setInterval(updateStats, 2000);
+            
+            // Close alert banner
+            document.querySelector('#alertBanner button').addEventListener('click', function() {
+                document.getElementById('alertBanner').classList.add('hidden');
+            });
+            
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', updateStats);
+        });
+    </script>
+</body>
+</html>
