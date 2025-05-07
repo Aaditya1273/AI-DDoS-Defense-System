@@ -65,7 +65,7 @@ REDIS_PORT=6379
 
 ---
 
-## 🧪 Usage
+## 🧪 Usage:
 
 1. 🎯 Train the models (requires training data):
 
