@@ -1,5 +1,3 @@
-
-
 # 🧠💥 AI-Powered DDoS Detection System
 
 A real-time 🕒 DDoS attack detection system using machine learning 🤖 and network traffic analysis 🌐.
@@ -10,7 +8,6 @@ A real-time 🕒 DDoS attack detection system using machine learning 🤖 and ne
 
 * 📡 Real-time network traffic monitoring
 * 🧠 Multiple ML models for attack detection:
-
   * LSTM 🔁
   * XGBoost 📊
   * Random Forest 🌳
@@ -19,19 +16,22 @@ A real-time 🕒 DDoS attack detection system using machine learning 🤖 and ne
   * 🌊 UDP Flood
   * ⚡ ICMP Flood
   * 🌐 HTTP Flood
-* 📈 Real-time system monitoring
-* 🖥️ Web-based dashboard
+* 📈 Real-time system monitoring and CPU usage tracking
+* 🖥️ Web-based dashboard with interactive controls
 * 🗃️ Attack logging and analysis
+* 🧪 Test mode for controlled attack simulation
+* 🔄 Reset functionality to clear statistics
+* 🔍 Support for capturing real network traffic
 
 ---
 
 ## 📦 Prerequisites
 
-* 🐍 Python 3.8+
+* 🐍 Python 3.8+ 
 * 🍃 MongoDB
 * 🔁 Redis
 * 🧰 Network interface with promiscuous mode support
-* 🔐 Administrative privileges for packet capture
+
 
 ---
 
@@ -41,7 +41,7 @@ A real-time 🕒 DDoS attack detection system using machine learning 🤖 and ne
 
 ```bash
 git clone <repository-url>
-cd ddos-detection-system
+cd AI-DDoS-Defense-System
 ```
 
 2. 📦 Install Python dependencies:
@@ -76,13 +76,28 @@ python train_models.py
 2. 🚨 Start the detection system:
 
 ```bash
-python ddos_detector.py
+python main.py
 ```
 
-3. 🌐 Open the web dashboard:
+3. 🌐 Access the web dashboard:
 
-* Open `index.html` in your browser 🧭
-* Dashboard auto-connects to backend 🧩
+* The dashboard will be automatically served at http://localhost:5000
+* Dashboard features:
+  * Real-time traffic visualization
+  * Attack detection indicators
+  * System resource monitoring
+  * Test mode controls
+  * Reset functionality
+
+---
+
+## 🔄 Operation Modes
+
+### Real Traffic Mode
+Captures and analyzes actual network traffic for DDoS detection. Requires appropriate network interface access and permissions.
+
+### Test Mode
+Generates simulated attack traffic for testing and demonstration purposes without affecting network operations.
 
 ---
 
@@ -102,6 +117,14 @@ python ddos_detector.py
 * 🛡️ Keep software up-to-date
 * 🧠 Monitor system resource usage
 * 🆕 Regularly retrain ML models
+* ⚠️ Be aware of system resource consumption during detection operations
 
 ---
 
+## 🛠️ Troubleshooting
+
+* If encountering "Layer not found" errors in test mode, check packet generation configuration
+* For CPU usage reporting discrepancies, the system includes a calibration offset
+* If statistics persist after stopping tests, use the Reset button to clear them
+
+---
