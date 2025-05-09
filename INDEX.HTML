@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="settings.js" defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -301,9 +302,10 @@
         .neo-toggle-sidebar {
             position: fixed;
             left: 250px;
-            top: 1.5rem;
-            width: 40px;
-            height: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
             background-color: var(--dark);
             border: 1px solid var(--border);
             border-radius: 50%;
@@ -312,19 +314,25 @@
             justify-content: center;
             color: var(--text-muted);
             z-index: 50;
-            transition: left 0.3s ease, transform 0.3s ease;
+            transition: all 0.3s ease;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0.8;
         }
         
         .neo-toggle-sidebar:hover {
             color: var(--primary);
             border-color: var(--primary);
+            opacity: 1;
+            box-shadow: 0 0 12px rgba(35, 200, 255, 0.3);
         }
         
         .neo-toggle-sidebar.collapsed {
-            left: 1.5rem;
-            transform: rotate(180deg);
+            left: 0;
+            transform: translateY(-50%) rotate(180deg);
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            border-left: none;
         }
         
         /* Animation for scrolling numbers */
@@ -358,8 +366,11 @@
             }
             
             .neo-toggle-sidebar {
-                left: 1.5rem;
-                transform: rotate(180deg);
+                left: 0;
+                transform: translateY(-50%) rotate(180deg);
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+                border-left: none;
             }
             
             .neo-header {
@@ -383,12 +394,171 @@
         .pulse-animation {
             animation: pulse 2s infinite ease-in-out;
         }
+        
+        /* Tab Styling */
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        /* Gaming-inspired resource monitor styles */
+        @keyframes glitchText {
+            0% { text-shadow: 0 0 8px currentColor; }
+            25% { text-shadow: -1px 0 8px currentColor; }
+            40% { text-shadow: 1px 0 8px currentColor; }
+            60% { text-shadow: 0 0 12px currentColor, 0 0 5px currentColor; }
+            75% { text-shadow: 0.5px 0 8px currentColor; }
+            100% { text-shadow: 0 0 8px currentColor; }
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+        
+        @keyframes flicker {
+            0% { opacity: 1; }
+            5% { opacity: 0.7; }
+            10% { opacity: 1; }
+            15% { opacity: 0.8; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            85% { opacity: 0.9; }
+            90% { opacity: 1; }
+            95% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .cpu-value, .memory-value, .disk-value {
+            animation: glitchText 3s infinite linear alternate-reverse;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .neo-progress-bar.animate-pulse {
+            animation: flicker 3s infinite ease-in-out;
+        }
+        
+        .resource-monitor {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .resource-monitor::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 0;
+            width: 100%;
+            height: 200%;
+            background: linear-gradient(0deg, transparent 0%, rgba(32, 193, 255, 0.05) 50%, transparent 100%);
+            animation: scanline 4s linear infinite;
+        }
+        
+        /* Digital circuit background pattern */
+        .circuit-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.1) 2px, transparent 0),
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px, 25px 25px, 25px 25px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* High-tech data ticking effect */
+        @keyframes dataTick {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .data-tick {
+            animation: dataTick 0.3s ease-out forwards;
+        }
+        
+        .neo-toggle-label {
+            position: absolute;
+            right: -3rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s ease;
+            /* Hide all toggle labels completely */
+            display: none;
+        }
+        
+        .neo-toggle-on {
+            color: var(--primary);
+            opacity: 0;
+        }
+        
+        .neo-toggle-off {
+            color: var(--text-muted);
+            opacity: 1;
+        }
+        
+        input[type="checkbox"]:checked ~ .neo-toggle-on {
+            opacity: 1;
+        }
+        
+        input[type="checkbox"]:checked ~ .neo-toggle-off {
+            opacity: 0;
+        }
+        
+        input[type="checkbox"]:checked ~ div.w-11 {
+            background-color: rgba(35, 200, 255, 0.2);
+            border-color: rgba(35, 200, 255, 0.3);
+        }
+        
+        input[type="checkbox"] ~ div.w-11 {
+            background-color: rgba(107, 114, 128, 0.2);
+            border-color: rgba(107, 114, 128, 0.3);
+        }
+        
+        input[type="checkbox"]:checked ~ div.w-11::after {
+            background-color: var(--primary); /* Theme primary color for on state */
+            box-shadow: 0 0 5px var(--primary);
+        }
+        
+        input[type="checkbox"] ~ div.w-11::after {
+            background-color: #6B7280; /* Grey color for off state */
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes toggleRoll {
+            0% { transform: translateX(0) rotate(0deg); }
+            100% { transform: translateX(20px) rotate(360deg); }
+        }
+        
+        input[type="checkbox"] ~ div.w-11::after {
+            background-color: #6B7280; /* Grey color for off state */
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        input[type="checkbox"]:checked ~ div.w-11::after {
+            background-color: var(--primary); /* Theme primary color for on state */
+            box-shadow: 0 0 5px var(--primary);
+            animation: toggleRoll 0.3s ease forwards;
+        }
     </style>
 </head>
 <body>
     <!-- Toggle Sidebar Button -->
-    <div id="sidebar-toggle" class="neo-toggle-sidebar">
-        <i class="fas fa-angle-left"></i>
+    <div id="sidebar-toggle" class="neo-toggle-sidebar" aria-label="Hide sidebar" title="Hide sidebar" role="button" tabindex="0">
+        <i class="fas fa-chevron-left"></i>
     </div>
 
     <!-- Sidebar Navigation -->
@@ -397,32 +567,32 @@
             <h1 class="text-xl font-bold text-primary flex items-center gap-2">
                 <i class="fas fa-shield-alt"></i>
                 <span>CyberShield</span>
-            </h1>
+                </h1>
             <p class="text-sm text-text-muted mt-1">Advanced DDoS Protection</p>
-        </div>
+            </div>
         
         <nav class="mb-6">
-            <a href="#" class="neo-sidebar-link active">
+            <a href="#" class="neo-sidebar-link active" data-tab="dashboard">
                 <i class="fas fa-chart-line"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="#" class="neo-sidebar-link">
+            <a href="#" class="neo-sidebar-link" data-tab="threat-analysis">
                 <i class="fas fa-shield-virus"></i>
                 <span>Threat Analysis</span>
             </a>
-            <a href="#" class="neo-sidebar-link">
+            <a href="#" class="neo-sidebar-link" data-tab="network-traffic">
                 <i class="fas fa-network-wired"></i>
                 <span>Network Traffic</span>
             </a>
-            <a href="#" class="neo-sidebar-link">
+            <a href="#" class="neo-sidebar-link" data-tab="infrastructure">
                 <i class="fas fa-server"></i>
                 <span>Infrastructure</span>
             </a>
-            <a href="#" class="neo-sidebar-link">
+            <a href="#" class="neo-sidebar-link" data-tab="identity-control">
                 <i class="fas fa-user-shield"></i>
                 <span>Identity Control</span>
             </a>
-            <a href="#" class="neo-sidebar-link">
+            <a href="#" class="neo-sidebar-link" data-tab="settings">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
@@ -444,416 +614,1338 @@
     
     <!-- Main Content Area -->
     <main id="main-content" class="neo-main">
-        <!-- Header -->
-        <header class="neo-header flex items-center justify-between mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-white">Security Dashboard</h1>
-                <p class="text-text-muted mt-1">Real-time DDoS monitoring and defense</p>
-            </div>
-            
-            <div class="flex items-center gap-6">
-                <div id="status-indicator" class="neo-status-badge active">
-                    <div class="w-2 h-2 rounded-full bg-success"></div>
-                    <span>System Protected</span>
-                </div>
-                
-                <div class="font-mono text-sm whitespace-nowrap" id="packet-counter">0 packets analyzed</div>
-                
-                <div class="relative">
-                    <button class="neo-btn neo-btn-primary">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Protection Status</span>
-                    </button>
+        <!-- Tab Content Container -->
+        <div id="tab-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-pane active">
+                <!-- Header -->
+                <header class="neo-header flex items-center justify-between mb-6">
+                <div>
+                        <h1 class="text-2xl font-bold text-white">Security Dashboard</h1>
+                        <p class="text-text-muted mt-1">Real-time DDoS monitoring and defense</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-6">
+                        <div id="status-indicator" class="neo-status-badge active">
+                            <div class="w-2 h-2 rounded-full bg-success"></div>
+                            <span>System Protected</span>
+                        </div>
+                        
+                        <div class="font-mono text-sm whitespace-nowrap" id="packet-counter">0 packets analyzed</div>
+                        
+                        <div class="relative">
+                            <button class="neo-btn neo-btn-primary">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Protection Status</span>
+                            </button>
                 </div>
             </div>
         </header>
-        
-        <!-- Alert Banner (Hidden by default) -->
-        <div id="alertBanner" class="neo-alert neo-alert-danger hidden">
-            <div class="neo-alert-content">
-                <div class="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center">
-                    <i class="fas fa-exclamation-triangle text-danger"></i>
-                </div>
+
+                <!-- Alert Banner (Hidden by default) -->
+                <div id="alertBanner" class="neo-alert neo-alert-danger hidden">
+                    <div class="neo-alert-content">
+                        <div class="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-danger"></i>
+                        </div>
                 <div>
-                    <h3 class="font-semibold">DDoS Attack Detected</h3>
-                    <p id="alert-details" class="text-sm text-text-muted">Mitigation protocols activated</p>
+                            <h3 class="font-semibold">DDoS Attack Detected</h3>
+                            <p id="alert-details" class="text-sm text-text-muted">Mitigation protocols activated</p>
                 </div>
             </div>
-            <button class="text-text-muted hover:text-text">
+                    <button class="text-text-muted hover:text-text">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
-        <!-- Key Metrics Row -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="neo-metric-card">
-                <div class="w-12 h-12 neo-hexagon bg-primary/20 text-primary">
-                    <i class="fas fa-chart-bar"></i>
-                </div>
-                <div>
-                    <div id="total-packets" class="neo-stat-value text-primary">0</div>
-                    <div class="neo-stat-label">Total Packets</div>
-                </div>
-            </div>
+
+                <!-- Key Metrics Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="neo-metric-card">
+                        <div class="w-12 h-12 neo-hexagon bg-primary/20 text-primary">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <div id="total-packets" class="neo-stat-value text-primary">0</div>
+                            <div class="neo-stat-label">Total Packets</div>
+                        </div>
+                    </div>
             
-            <div class="neo-metric-card">
-                <div class="w-12 h-12 neo-hexagon bg-success/20 text-success">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <div>
-                    <div id="mitigation-score" class="neo-stat-value text-success">0%</div>
-                    <div class="neo-stat-label">Mitigation Score</div>
-                </div>
-            </div>
+                    <div class="neo-metric-card">
+                        <div class="w-12 h-12 neo-hexagon bg-success/20 text-success">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <div id="mitigation-score" class="neo-stat-value text-success">0%</div>
+                            <div class="neo-stat-label">Mitigation Score</div>
+                        </div>
+                    </div>
             
-            <div class="neo-metric-card">
-                <div class="w-12 h-12 neo-hexagon bg-warning/20 text-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div>
-                    <div id="suspicious-ips" class="neo-stat-value text-warning">0</div>
-                    <div class="neo-stat-label">Suspicious IPs</div>
-                </div>
-            </div>
+                    <div class="neo-metric-card">
+                        <div class="w-12 h-12 neo-hexagon bg-warning/20 text-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <div id="suspicious-ips" class="neo-stat-value text-warning">0</div>
+                            <div class="neo-stat-label">Suspicious IPs</div>
+                        </div>
+                    </div>
             
-            <div class="neo-metric-card">
-                <div class="w-12 h-12 neo-hexagon bg-danger/20 text-danger">
-                    <i class="fas fa-ban"></i>
+                    <div class="neo-metric-card">
+                        <div class="w-12 h-12 neo-hexagon bg-danger/20 text-danger">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div>
+                            <div id="blocked-ips" class="neo-stat-value text-danger">0</div>
+                            <div class="neo-stat-label">Blocked IPs</div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <div id="blocked-ips" class="neo-stat-value text-danger">0</div>
-                    <div class="neo-stat-label">Blocked IPs</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Traffic Monitoring and System Status -->
+            
+                <!-- Traffic Monitoring and System Status -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <!-- Traffic Visualization -->
-            <div class="neo-card p-6 lg:col-span-2">
-                <div class="neo-card-header">
-                    <h2 class="neo-card-title">
-                        <i class="fas fa-chart-area text-primary"></i>
-                        Network Traffic Flow
+                    <!-- Traffic Visualization -->
+                    <div class="neo-card p-6 lg:col-span-2">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-chart-area text-primary"></i>
+                                Network Traffic Flow
+                </h2>
+                            <div class="flex gap-2">
+                                <button id="refresh-btn" class="neo-btn neo-btn-primary text-sm">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>Refresh</span>
+                                </button>
+                                <button id="reset-btn" class="neo-btn neo-btn-danger text-sm">
+                                    <i class="fas fa-undo-alt"></i>
+                                    <span>Reset</span>
+                                </button>
+                            </div>
+                        </div>
+                
+                        <div class="mb-6">
+                            <div class="relative h-72">
+                                <canvas id="trafficChart"></canvas>
+                            </div>
+                        </div>
+                
+                        <!-- Network Statistics Pills -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="bg-light-dark rounded-lg p-3">
+                                <div class="flex justify-between items-center mb-1">
+                                    <div class="text-sm text-text-muted">Packets/sec</div>
+                                    <div id="packets-per-sec" class="text-sm font-mono text-primary">0</div>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="packets-per-sec-bar" class="neo-progress-bar primary" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="bg-light-dark rounded-lg p-3">
+                                <div class="flex justify-between items-center mb-1">
+                                    <div class="text-sm text-text-muted">SYN Packets</div>
+                                    <div id="syn-packets" class="text-sm font-mono text-warning">0</div>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="syn-packets-bar" class="neo-progress-bar warning" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-light-dark rounded-lg p-3">
+                                <div class="flex justify-between items-center mb-1">
+                                    <div class="text-sm text-text-muted">Throughput</div>
+                                    <div id="network-throughput" class="text-sm font-mono text-success">0 MB/s</div>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="network-throughput-bar" class="neo-progress-bar success" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- System Status Card -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-server text-primary"></i>
+                                System Status
+                            </h2>
+                            <div class="text-xs text-text-muted">
+                                <span id="system-time">00:00:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- CPU Usage -->
+                    <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                            <i class="fas fa-microchip"></i>
+                        </div>
+                                        <span>CPU Usage</span>
+                        </div>
+                                    <span id="cpuUsage" class="font-mono text-primary">0%</span>
+                    </div>
+                                <div class="neo-progress">
+                                    <div id="cpuBar" class="neo-progress-bar primary" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Memory Usage -->
+                    <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary">
+                                            <i class="fas fa-memory"></i>
+                        </div>
+                                        <span>Memory Usage</span>
+                        </div>
+                                    <span id="memoryUsage" class="font-mono text-tertiary">0%</span>
+                    </div>
+                                <div class="neo-progress">
+                                    <div id="memoryBar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #C1175B, var(--tertiary));"></div>
+                                </div>
+                            </div>
+
+                            <!-- Network I/O -->
+                    <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+                                            <i class="fas fa-network-wired"></i>
+                        </div>
+                                        <span>Network I/O</span>
+                        </div>
+                                    <span id="networkUsage" class="font-mono text-secondary">0 MB/s</span>
+                    </div>
+                                <div class="neo-progress">
+                                    <div id="networkBar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #D9980D, var(--secondary));"></div>
+                </div>
+                            </div>
+                            
+                            <!-- Protection Status -->
+                            <div class="bg-light-dark rounded-lg p-4">
+                                <h3 class="text-sm font-medium mb-3">Protection Components</h3>
+                                <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-between">
+                                        <span>Anomaly Detection</span>
+                                        <span class="text-success">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                                        <span>Traffic Analysis</span>
+                                        <span class="text-success">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                                        <span>Pattern Recognition</span>
+                                        <span class="text-success">Active</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                                        <span>Firewall Rules</span>
+                                        <span id="firewall-rules" class="text-success font-mono">0 active</span>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Attack Monitoring and Protocol Distribution -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Recent Attacks -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-bolt text-danger"></i>
+                                Attack Detection
                     </h2>
-                    <div class="flex gap-2">
-                        <button id="refresh-btn" class="neo-btn neo-btn-primary text-sm">
-                            <i class="fas fa-sync-alt"></i>
-                            <span>Refresh</span>
-                        </button>
-                        <button id="reset-btn" class="neo-btn neo-btn-danger text-sm">
-                            <i class="fas fa-undo-alt"></i>
-                            <span>Reset</span>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="mb-6">
-                    <div class="relative h-72">
-                        <canvas id="trafficChart"></canvas>
-                    </div>
-                </div>
-                
-                <!-- Network Statistics Pills -->
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-light-dark rounded-lg p-3">
-                        <div class="flex justify-between items-center mb-1">
-                            <div class="text-sm text-text-muted">Packets/sec</div>
-                            <div id="packets-per-sec" class="text-sm font-mono text-primary">0</div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-xs text-text-muted">Confidence</span>
+                                    <span id="confidenceValue" class="text-xs font-mono">0%</span>
+                                </div>
+                                <div class="neo-progress w-24">
+                                    <div id="confidenceBar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #D32F2F, var(--danger));"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="neo-progress">
-                            <div id="packets-per-sec-bar" class="neo-progress-bar primary" style="width: 0%"></div>
+                    </div>
+
+                    <!-- Protocol Distribution -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-pie-chart text-primary"></i>
+                                Protocol Distribution
+                            </h2>
+                        </div>
+                    
+                        <div class="h-64">
+                            <canvas id="protocolChart"></canvas>
+                        </div>
+                    
+                        <div class="grid grid-cols-3 gap-4 mt-4">
+                            <div class="flex flex-col items-center">
+                                <div class="text-primary font-mono font-medium">TCP</div>
+                                <div id="tcp-percent" class="text-sm text-text-muted">0%</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="text-secondary font-mono font-medium">UDP</div>
+                                <div id="udp-percent" class="text-sm text-text-muted">0%</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="text-tertiary font-mono font-medium">ICMP</div>
+                                <div id="icmp-percent" class="text-sm text-text-muted">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Top Sources -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-globe text-success"></i>
+                                Top Source IPs
+                            </h2>
+                        </div>
+                    
+                        <div id="top-ips" class="space-y-3">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    
+                        <div class="mt-4 pt-4 border-t border-border">
+                            <h3 class="text-sm font-medium mb-3">Geographic Distribution</h3>
+                            <div class="h-40">
+                                <canvas id="geoDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Advanced Analytics -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Packet Types -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-envelope text-primary"></i>
+                                Packet Types
+                            </h2>
+                        </div>
+
+                        <div class="h-64">
+                            <canvas id="packetTypesChart"></canvas>
                         </div>
                     </div>
                     
-                    <div class="bg-light-dark rounded-lg p-3">
-                        <div class="flex justify-between items-center mb-1">
-                            <div class="text-sm text-text-muted">SYN Packets</div>
-                            <div id="syn-packets" class="text-sm font-mono text-warning">0</div>
+                    <!-- Attack Distribution -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-bug text-danger"></i>
+                                Attack Distribution
+                            </h2>
                         </div>
-                        <div class="neo-progress">
-                            <div id="syn-packets-bar" class="neo-progress-bar warning" style="width: 0%"></div>
+                        
+                        <div class="h-64">
+                            <canvas id="attackDistributionChart"></canvas>
                         </div>
                     </div>
                     
-                    <div class="bg-light-dark rounded-lg p-3">
-                        <div class="flex justify-between items-center mb-1">
-                            <div class="text-sm text-text-muted">Throughput</div>
-                            <div id="network-throughput" class="text-sm font-mono text-success">0 MB/s</div>
+                    <!-- Defense Metrics -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-shield-alt text-success"></i>
+                                Defense Metrics
+                            </h2>
                         </div>
-                        <div class="neo-progress">
-                            <div id="network-throughput-bar" class="neo-progress-bar success" style="width: 0%"></div>
+                        
+                        <div class="space-y-4">
+                            <!-- Mitigation Effectiveness -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm">Mitigation Effectiveness</span>
+                                    <span id="mitigationValue" class="text-sm font-mono text-success">0%</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="mitigationBar" class="neo-progress-bar success" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Detection Accuracy -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm">Detection Accuracy</span>
+                                    <span id="detection-accuracy" class="text-sm font-mono text-primary">0%</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="detection-accuracy-bar" class="neo-progress-bar primary" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Response Time -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm">Avg. Response Time</span>
+                                    <span id="response-time" class="text-sm font-mono text-secondary">0ms</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="response-time-bar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #D9980D, var(--secondary));"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Protection Status -->
+                            <div class="bg-light-dark rounded-lg p-4 mt-4">
+                                <h3 class="text-sm font-medium mb-3">Protection Layers</h3>
+                                <div class="grid grid-cols-2 gap-3 text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded-full bg-success"></div>
+                                        <span>Layer 3 (Network)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded-full bg-success"></div>
+                                        <span>Layer 4 (Transport)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded-full bg-success"></div>
+                                        <span>Layer 7 (Application)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded-full bg-success"></div>
+                                        <span>DNS Protection</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- System Status Card -->
-            <div class="neo-card p-6">
-                <div class="neo-card-header">
-                    <h2 class="neo-card-title">
-                        <i class="fas fa-server text-primary"></i>
-                        System Status
-                    </h2>
-                    <div class="text-xs text-text-muted">
-                        <span id="system-time">00:00:00</span>
+            <!-- Threat Analysis Tab (Initially Hidden) -->
+            <div id="threat-analysis" class="tab-pane hidden">
+                <!-- Header -->
+                <header class="neo-header flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Threat Analysis</h1>
+                        <p class="text-text-muted mt-1">Advanced detection and analysis of potential threats</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="neo-status-badge active">
+                            <div class="w-2 h-2 rounded-full bg-success"></div>
+                            <span>Analysis Active</span>
+                        </div>
+                        
+                        <button class="neo-btn neo-btn-primary">
+                            <i class="fas fa-file-export"></i>
+                            <span>Export Report</span>
+                        </button>
+                    </div>
+                </header>
+                
+                <!-- Threat Analysis Content -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Threat Map -->
+                    <div class="neo-card p-6 lg:col-span-2">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-globe text-primary"></i>
+                                Global Threat Map
+                            </h2>
+                            <div class="flex gap-2">
+                                <button id="refresh-threat-map" class="neo-btn neo-btn-primary text-sm">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="h-80 bg-light-dark rounded-lg overflow-hidden relative resource-monitor" id="threat-map-container">
+                            <div class="circuit-bg"></div>
+                            <div id="world-map" class="w-full h-full p-2"></div>
+                            
+                            <!-- Live attack indicator -->
+                            <div id="attack-indicator" class="absolute top-4 left-4 bg-darker/50 border border-danger/30 text-danger text-xs py-1 px-2 rounded flex items-center gap-1 hidden">
+                                <div class="w-2 h-2 rounded-full bg-danger animate-pulse"></div>
+                                <span>Live Attack</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Threat Intelligence -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-brain text-tertiary"></i>
+                                Threat Intelligence
+                            </h2>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-light-dark rounded-lg p-4">
+                                <h3 class="text-sm font-medium mb-2">ML Detection Status</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span>LSTM Model</span>
+                                            <span class="font-mono text-success">95.2%</span>
+                                        </div>
+                                        <div class="neo-progress">
+                                            <div class="neo-progress-bar success" style="width: 95.2%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="space-y-6">
-                    <!-- CPU Usage -->
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                    <i class="fas fa-microchip"></i>
-                                </div>
-                                <span>CPU Usage</span>
-                            </div>
-                            <span id="cpuUsage" class="font-mono text-primary">0%</span>
-                        </div>
-                        <div class="neo-progress">
-                            <div id="cpuBar" class="neo-progress-bar primary" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Memory Usage -->
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary">
-                                    <i class="fas fa-memory"></i>
-                                </div>
-                                <span>Memory Usage</span>
-                            </div>
-                            <span id="memoryUsage" class="font-mono text-tertiary">0%</span>
-                        </div>
-                        <div class="neo-progress">
-                            <div id="memoryBar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #C1175B, var(--tertiary));"></div>
+                <!-- Detailed Geographic World Map - NEWLY ADDED SECTION -->
+                <div class="neo-card p-6 mb-6">
+                    <div class="neo-card-header">
+                        <h2 class="neo-card-title">
+                            <i class="fas fa-map-marked-alt text-primary"></i>
+                            Geographic Attack Origin Map
+                        </h2>
+                        <div class="flex gap-2">
+                            <button id="zoom-in-map" class="neo-btn neo-btn-primary text-sm">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button id="zoom-out-map" class="neo-btn neo-btn-primary text-sm">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button id="reset-map-view" class="neo-btn neo-btn-primary text-sm">
+                                <i class="fas fa-compress-arrows-alt"></i>
+                            </button>
                         </div>
                     </div>
                     
-                    <!-- Network I/O -->
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
+                    <div class="h-96 bg-light-dark rounded-lg overflow-hidden relative resource-monitor" id="detailed-map-container">
+                        <div class="circuit-bg"></div>
+                        <div id="geo-world-map" class="w-full h-full"></div>
+                        
+                        <!-- Map Legend -->
+                        <div class="absolute bottom-4 right-4 bg-darker/70 p-3 rounded border border-border">
+                            <div class="text-xs font-medium mb-2">Attack Intensity</div>
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
-                                    <i class="fas fa-network-wired"></i>
-                                </div>
-                                <span>Network I/O</span>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                <span class="text-xs">Low</span>
                             </div>
-                            <span id="networkUsage" class="font-mono text-secondary">0 MB/s</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <span class="text-xs">Medium</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <span class="text-xs">High</span>
+                            </div>
                         </div>
-                        <div class="neo-progress">
-                            <div id="networkBar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #D9980D, var(--secondary));"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Protection Status -->
-                    <div class="bg-light-dark rounded-lg p-4">
-                        <h3 class="text-sm font-medium mb-3">Protection Components</h3>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex items-center justify-between">
-                                <span>Anomaly Detection</span>
-                                <span class="text-success">Active</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span>Traffic Analysis</span>
-                                <span class="text-success">Active</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span>Pattern Recognition</span>
-                                <span class="text-success">Active</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span>Firewall Rules</span>
-                                <span id="firewall-rules" class="text-success font-mono">0 active</span>
-                            </div>
+                        
+                        <!-- Attack Stats -->
+                        <div class="absolute top-4 left-4 bg-darker/70 p-3 rounded border border-border max-w-xs">
+                            <div class="text-xs font-medium mb-2">Top Attack Origins</div>
+                            <div id="attack-origins-list" class="space-y-1 text-xs"></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Attack Monitoring and Protocol Distribution -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <!-- Recent Attacks -->
-            <div class="neo-card p-6">
-                <div class="neo-card-header">
-                    <h2 class="neo-card-title">
-                        <i class="fas fa-bolt text-danger"></i>
-                        Attack Detection
-                    </h2>
+
+            <!-- Network Traffic Tab (Initially Hidden) -->
+            <div id="network-traffic" class="tab-pane hidden">
+                <!-- Header -->
+                <header class="neo-header flex items-center justify-between mb-6">
                     <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-xs text-text-muted">Confidence</span>
-                            <span id="confidenceValue" class="text-xs font-mono">0%</span>
+                        <h1 class="text-2xl font-bold text-white">Network Traffic</h1>
+                        <p class="text-text-muted mt-1">Detailed network traffic analysis and monitoring</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <button class="neo-btn neo-btn-primary">
+                            <i class="fas fa-filter"></i>
+                            <span>Filter Traffic</span>
+                        </button>
+                    </div>
+                </header>
+                
+                <!-- Network Traffic Content -->
+                <div class="neo-card p-6 mb-6">
+                    <div class="neo-card-header">
+                        <h2 class="neo-card-title">
+                            <i class="fas fa-chart-line text-primary"></i>
+                            Traffic Monitoring
+                </h2>
+                    </div>
+                    
+                    <div class="h-80 bg-light-dark rounded-lg flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-network-wired text-5xl text-primary opacity-40 mb-4 block"></i>
+                            <p class="text-text-muted">Network traffic visualization will appear here</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Infrastructure Tab (Initially Hidden) -->
+            <div id="infrastructure" class="tab-pane hidden">
+                <!-- Header -->
+                <header class="neo-header flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Infrastructure</h1>
+                        <p class="text-text-muted mt-1">System infrastructure and resource monitoring</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <button class="neo-btn neo-btn-primary">
+                            <i class="fas fa-server"></i>
+                            <span>Add Server</span>
+                        </button>
+                    </div>
+                </header>
+                
+                <!-- Infrastructure Content -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-microchip text-primary"></i>
+                                CPU Usage
+                            </h2>
                         </div>
-                        <div class="neo-progress w-24">
-                            <div id="confidenceBar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #D32F2F, var(--danger));"></div>
+                        
+                        <div class="h-40 bg-light-dark rounded-lg flex items-center justify-center mb-4 relative overflow-hidden resource-monitor">
+                            <div class="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-75"></div>
+                            <div class="circuit-bg"></div>
+                            <div class="relative z-10 flex flex-col items-center">
+                                <span id="cpu-percentage" class="text-5xl font-mono font-bold text-primary cpu-value" style="text-shadow: 0 0 10px var(--primary);">42%</span>
+                                <span class="text-sm text-primary/70">Processing Power</span>
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full h-1 bg-primary/20">
+                                <div id="cpu-indicator" class="h-full bg-primary animate-pulse" style="width: 42%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-mono">Core 1</span>
+                                    <span id="core1-usage" class="font-mono text-primary cpu-value" style="text-shadow: 0 0 5px var(--primary);">38%</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="core1-bar" class="neo-progress-bar primary animate-pulse" style="width: 38%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-mono">Core 2</span>
+                                    <span id="core2-usage" class="font-mono text-primary cpu-value" style="text-shadow: 0 0 5px var(--primary);">45%</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="core2-bar" class="neo-progress-bar primary animate-pulse" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-memory text-tertiary"></i>
+                                Memory Usage
+                            </h2>
+                        </div>
+                        
+                        <div class="h-40 bg-light-dark rounded-lg flex items-center justify-center mb-4 relative overflow-hidden resource-monitor">
+                            <div class="absolute inset-0 bg-gradient-to-b from-tertiary/5 to-transparent opacity-75"></div>
+                            <div class="circuit-bg"></div>
+                            <div class="relative z-10 flex flex-col items-center">
+                                <span id="memory-percentage" class="text-5xl font-mono font-bold text-tertiary memory-value" style="text-shadow: 0 0 10px var(--tertiary);">68%</span>
+                                <span class="text-sm text-tertiary/70">Memory Allocation</span>
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full h-1 bg-tertiary/20">
+                                <div id="memory-indicator" class="h-full bg-tertiary animate-pulse" style="width: 68%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-sm space-y-2">
+                            <div class="flex justify-between border-b border-light-dark pb-1">
+                                <span class="font-mono">Total Memory</span>
+                                <span id="total-memory" class="font-mono text-text">16 GB</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-mono">Used</span>
+                                <span id="used-memory" class="font-mono text-tertiary memory-value" style="text-shadow: 0 0 5px var(--tertiary);">10.8 GB</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-mono">Available</span>
+                                <span id="available-memory" class="font-mono text-success">5.2 GB</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-hdd text-secondary"></i>
+                                Disk Usage
+                            </h2>
+                        </div>
+                        
+                        <div class="h-40 bg-light-dark rounded-lg flex items-center justify-center mb-4 relative overflow-hidden resource-monitor">
+                            <div class="absolute inset-0 bg-gradient-to-b from-secondary/5 to-transparent opacity-75"></div>
+                            <div class="circuit-bg"></div>
+                            <div class="relative z-10 flex flex-col items-center">
+                                <span id="disk-percentage" class="text-5xl font-mono font-bold text-secondary disk-value" style="text-shadow: 0 0 10px var(--secondary);">55%</span>
+                                <span class="text-sm text-secondary/70">Storage Capacity</span>
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full h-1 bg-secondary/20">
+                                <div id="disk-indicator" class="h-full bg-secondary animate-pulse" style="width: 55%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-sm space-y-2">
+                            <div class="flex justify-between border-b border-light-dark pb-1">
+                                <span class="font-mono">Total Space</span>
+                                <span id="total-disk" class="font-mono text-text">1 TB</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-mono">Used</span>
+                                <span id="used-disk" class="font-mono text-secondary disk-value" style="text-shadow: 0 0 5px var(--secondary);">550 GB</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Available</span>
+                                <span class="font-mono text-success">450 GB</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="overflow-auto max-h-60">
-                    <table class="neo-data-table">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Source IP</th>
-                                <th>Type</th>
+                <!-- Server List -->
+                <div class="neo-card p-6">
+                    <div class="neo-card-header">
+                        <h2 class="neo-card-title">
+                            <i class="fas fa-server text-primary"></i>
+                            Server Status
+                        </h2>
+                    </div>
+                    
+                    <div class="overflow-auto">
+                        <table class="neo-data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>IP Address</th>
+                                    <th>Status</th>
+                                    <th>CPU</th>
+                                    <th>Memory</th>
+                                    <th>Disk</th>
+                                    <th>Uptime</th>
                             </tr>
                         </thead>
-                        <tbody id="attackTable">
-                            <!-- Attack logs will be populated here -->
+                            <tbody>
+                                <tr>
+                                    <td>Web Server 1</td>
+                                    <td class="font-mono">192.168.1.10</td>
+                                    <td><span class="text-success">Online</span></td>
+                                    <td>35%</td>
+                                    <td>60%</td>
+                                    <td>48%</td>
+                                    <td>15d 7h 23m</td>
+                                </tr>
+                                <tr>
+                                    <td>Database Server</td>
+                                    <td class="font-mono">192.168.1.11</td>
+                                    <td><span class="text-success">Online</span></td>
+                                    <td>42%</td>
+                                    <td>78%</td>
+                                    <td>65%</td>
+                                    <td>10d 12h 5m</td>
+                                </tr>
+                                <tr>
+                                    <td>Load Balancer</td>
+                                    <td class="font-mono">192.168.1.5</td>
+                                    <td><span class="text-success">Online</span></td>
+                                    <td>22%</td>
+                                    <td>45%</td>
+                                    <td>30%</td>
+                                    <td>20d 3h 17m</td>
+                                </tr>
+                                <tr>
+                                    <td>Backup Server</td>
+                                    <td class="font-mono">192.168.1.20</td>
+                                    <td><span class="text-warning">Maintenance</span></td>
+                                    <td>5%</td>
+                                    <td>15%</td>
+                                    <td>85%</td>
+                                    <td>5d 2h 45m</td>
+                                </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-            
-            <!-- Protocol Distribution -->
-            <div class="neo-card p-6">
-                <div class="neo-card-header">
-                    <h2 class="neo-card-title">
-                        <i class="fas fa-pie-chart text-primary"></i>
-                        Protocol Distribution
-                    </h2>
-                </div>
-                
-                <div class="h-64">
-                    <canvas id="protocolChart"></canvas>
-                </div>
-                
-                <div class="grid grid-cols-3 gap-4 mt-4">
-                    <div class="flex flex-col items-center">
-                        <div class="text-primary font-mono font-medium">TCP</div>
-                        <div id="tcp-percent" class="text-sm text-text-muted">0%</div>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <div class="text-secondary font-mono font-medium">UDP</div>
-                        <div id="udp-percent" class="text-sm text-text-muted">0%</div>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <div class="text-tertiary font-mono font-medium">ICMP</div>
-                        <div id="icmp-percent" class="text-sm text-text-muted">0%</div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Top Sources -->
-            <div class="neo-card p-6">
-                <div class="neo-card-header">
-                    <h2 class="neo-card-title">
-                        <i class="fas fa-globe text-success"></i>
-                        Top Source IPs
-                    </h2>
-                </div>
+
+            <!-- Identity Control Tab (Initially Hidden) -->
+            <div id="identity-control" class="tab-pane hidden">
+                <!-- Header -->
+                <header class="neo-header flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Identity Control</h1>
+                        <p class="text-text-muted mt-1">User authentication and access management</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <button class="neo-btn neo-btn-primary">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add User</span>
+                        </button>
+                    </div>
+                </header>
                 
-                <div id="top-ips" class="space-y-3">
-                    <!-- Will be populated by JavaScript -->
+                <!-- Identity Control Content -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Active Sessions -->
+                    <div class="neo-card p-6 lg:col-span-2">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-users text-primary"></i>
+                                User Sessions
+                </h2>
+                    </div>
+                        
+                        <div class="overflow-auto">
+                            <table class="neo-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Role</th>
+                                        <th>IP Address</th>
+                                        <th>Login Time</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                                <i class="fas fa-user text-primary"></i>
+                    </div>
+                                            <span>admin</span>
+                                        </td>
+                                        <td>Administrator</td>
+                                        <td class="font-mono">192.168.1.100</td>
+                                        <td>08:45:12</td>
+                                        <td><span class="text-success">Active</span></td>
+                                        <td>
+                                            <button class="text-danger hover:text-danger/80">
+                                                <i class="fas fa-sign-out-alt"></i> Logout
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
+                                                <i class="fas fa-user text-secondary"></i>
                 </div>
-                
-                <div class="mt-4 pt-4 border-t border-border">
-                    <h3 class="text-sm font-medium mb-3">Geographic Distribution</h3>
-                    <div class="h-40">
-                        <canvas id="geoDistributionChart"></canvas>
+                                            <span>analyst</span>
+                                        </td>
+                                        <td>Security Analyst</td>
+                                        <td class="font-mono">192.168.1.105</td>
+                                        <td>09:12:33</td>
+                                        <td><span class="text-success">Active</span></td>
+                                        <td>
+                                            <button class="text-danger hover:text-danger/80">
+                                                <i class="fas fa-sign-out-alt"></i> Logout
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-tertiary/20 flex items-center justify-center">
+                                                <i class="fas fa-user text-tertiary"></i>
+                        </div>
+                                            <span>monitor</span>
+                                        </td>
+                                        <td>Monitor</td>
+                                        <td class="font-mono">192.168.1.110</td>
+                                        <td>09:30:05</td>
+                                        <td><span class="text-warning">Idle</span></td>
+                                        <td>
+                                            <button class="text-danger hover:text-danger/80">
+                                                <i class="fas fa-sign-out-alt"></i> Logout
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                    </div>
+                    </div>
+                    
+                    <!-- Authentication Stats -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-shield-alt text-success"></i>
+                                Authentication Stats
+                            </h2>
+                        </div>
+                        
+                        <div class="space-y-6">
+                        <div>
+                                <h3 class="text-sm font-medium mb-3">Login Activity (24h)</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-light-dark rounded-lg p-3 text-center">
+                                        <div class="text-2xl font-mono text-success">32</div>
+                                        <div class="text-xs text-text-muted">Successful</div>
+                        </div>
+                                    <div class="bg-light-dark rounded-lg p-3 text-center">
+                                        <div class="text-2xl font-mono text-danger">5</div>
+                                        <div class="text-xs text-text-muted">Failed</div>
+                    </div>
+                                </div>
+                            </div>
+                            
+                        <div>
+                                <h3 class="text-sm font-medium mb-3">Active Sessions</h3>
+                                <div class="bg-light-dark rounded-lg p-4">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm">Administrator</span>
+                                        <span class="text-xs font-mono">1</span>
+                        </div>
+                                    <div class="neo-progress mb-3">
+                                        <div class="neo-progress-bar primary" style="width: 20%"></div>
+                    </div>
+                                    
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm">Security Analyst</span>
+                                        <span class="text-xs font-mono">1</span>
+                </div>
+                                    <div class="neo-progress mb-3">
+                                        <div class="neo-progress-bar" style="width: 20%; background: linear-gradient(90deg, #D9980D, var(--secondary));"></div>
+                    </div>
+                                    
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm">Monitor</span>
+                                        <span class="text-xs font-mono">1</span>
+                                    </div>
+                                    <div class="neo-progress">
+                                        <div class="neo-progress-bar" style="width: 20%; background: linear-gradient(90deg, #C1175B, var(--tertiary));"></div>
+                </div>
+            </div>
+        </div>
+
+                            <div class="bg-light-dark rounded-lg p-4">
+                                <h3 class="text-sm font-medium mb-3">Account Security</h3>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm">2FA Enabled Users</span>
+                                        <span class="text-success">80%</span>
+                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm">Strong Passwords</span>
+                                        <span class="text-success">95%</span>
+                </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm">Password Age (avg)</span>
+                                        <span class="text-warning">45 days</span>
+                    </div>
+                </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Advanced Analytics -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Packet Types -->
-            <div class="neo-card p-6">
-                <div class="neo-card-header">
-                    <h2 class="neo-card-title">
-                        <i class="fas fa-envelope text-primary"></i>
-                        Packet Types
-                    </h2>
-                </div>
-                
-                <div class="h-64">
-                    <canvas id="packetTypesChart"></canvas>
-                </div>
-            </div>
+    </div>
             
-            <!-- Attack Distribution -->
-            <div class="neo-card p-6">
-                <div class="neo-card-header">
-                    <h2 class="neo-card-title">
-                        <i class="fas fa-bug text-danger"></i>
-                        Attack Distribution
-                    </h2>
+            <!-- Settings Tab (Initially Hidden) -->
+            <div id="settings" class="tab-pane hidden">
+                <!-- Header -->
+                <header class="neo-header flex items-center justify-between mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">System Settings</h1>
+                        <p class="text-text-muted mt-1">Configure system preferences and appearance</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <button id="save-settings-btn" class="neo-btn neo-btn-primary">
+                            <i class="fas fa-save"></i>
+                            <span>Save Changes</span>
+                        </button>
+                    </div>
+                </header>
+                
+                <!-- Settings Content -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Appearance Settings -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-palette text-primary"></i>
+                                Appearance
+                            </h2>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Theme Selection -->
+                            <div>
+                                <h3 class="text-sm font-medium mb-4">Theme</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div id="theme-cybershield" class="theme-option selected cursor-pointer">
+                                        <div class="h-20 rounded-lg bg-dark border-2 border-primary flex items-center justify-center mb-2">
+                                            <span class="text-primary font-medium">CyberShield</span>
+                                        </div>
+                                        <div class="flex justify-center">
+                                            <div class="w-4 h-4 rounded-full border-2 border-primary bg-primary"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="theme-midnight" class="theme-option cursor-pointer">
+                                        <div class="h-20 rounded-lg bg-[#030B16] border-2 border-[#7B42F6] flex items-center justify-center mb-2">
+                                            <span class="text-[#7B42F6] font-medium">Midnight</span>
+                                        </div>
+                                        <div class="flex justify-center">
+                                            <div class="w-4 h-4 rounded-full border-2 border-primary"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="theme-matrix" class="theme-option cursor-pointer">
+                                        <div class="h-20 rounded-lg bg-[#001100] border-2 border-[#00FF00] flex items-center justify-center mb-2">
+                                            <span class="text-[#00FF00] font-medium">Matrix</span>
+                                        </div>
+                                        <div class="flex justify-center">
+                                            <div class="w-4 h-4 rounded-full border-2 border-primary"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="theme-crimson" class="theme-option cursor-pointer">
+                                        <div class="h-20 rounded-lg bg-[#1A0505] border-2 border-[#FF5252] flex items-center justify-center mb-2">
+                                            <span class="text-[#FF5252] font-medium">Crimson</span>
+                                        </div>
+                                        <div class="flex justify-center">
+                                            <div class="w-4 h-4 rounded-full border-2 border-primary"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- UI Density -->
+                            <div>
+                                <h3 class="text-sm font-medium mb-3">UI Density</h3>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-compress text-text-muted"></i>
+                                        <span class="text-sm">Compact</span>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="density-toggle" class="sr-only">
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                    </label>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm">Comfortable</span>
+                                        <i class="fas fa-expand text-text-muted"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Chart Animation -->
+                            <div>
+                                <h3 class="text-sm font-medium mb-3">Chart Animations</h3>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Enable animations</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="animation-toggle" class="sr-only" checked>
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- System Configuration -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-wrench text-tertiary"></i>
+                                System Configuration
+                            </h2>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Protection Mode -->
+                            <div>
+                                <h3 class="text-sm font-medium mb-3">Protection Mode</h3>
+                                <div class="bg-light-dark rounded-lg p-4 space-y-3">
+                                    <div class="flex items-center">
+                                        <input type="radio" id="protection-normal" name="protection-mode" class="hidden peer" checked>
+                                        <label for="protection-normal" class="flex items-center justify-between w-full cursor-pointer p-2 rounded-lg peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:border-primary/30 border border-transparent">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center border-text-muted peer-checked:border-primary">
+                                                    <div class="w-3 h-3 rounded-full bg-primary opacity-0 peer-checked:opacity-100"></div>
+                                                </div>
+                                                <span>Normal Protection</span>
+                                            </div>
+                                            <span class="text-xs">Recommended</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <input type="radio" id="protection-aggressive" name="protection-mode" class="hidden peer">
+                                        <label for="protection-aggressive" class="flex items-center justify-between w-full cursor-pointer p-2 rounded-lg peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:border-primary/30 border border-transparent">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center border-text-muted peer-checked:border-primary">
+                                                    <div class="w-3 h-3 rounded-full bg-primary opacity-0 peer-checked:opacity-100"></div>
+                                                </div>
+                                                <span>Aggressive Protection</span>
+                                            </div>
+                                            <span class="text-xs">More false positives</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <input type="radio" id="protection-learning" name="protection-mode" class="hidden peer">
+                                        <label for="protection-learning" class="flex items-center justify-between w-full cursor-pointer p-2 rounded-lg peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:border-primary/30 border border-transparent">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center border-text-muted peer-checked:border-primary">
+                                                    <div class="w-3 h-3 rounded-full bg-primary opacity-0 peer-checked:opacity-100"></div>
+                                                </div>
+                                                <span>Learning Mode</span>
+                                            </div>
+                                            <span class="text-xs">No blocking</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Scan Frequency -->
+                            <div>
+                                <h3 class="text-sm font-medium mb-3">Traffic Scan Frequency</h3>
+                                <div class="flex flex-col space-y-1">
+                                    <input type="range" min="1" max="10" value="5" class="w-full h-2 bg-light-dark rounded-lg appearance-none cursor-pointer accent-primary" id="scan-frequency">
+                                    <div class="flex justify-between text-xs text-text-muted">
+                                        <span>Less Frequent</span>
+                                        <span id="scan-frequency-value">5</span>
+                                        <span>More Frequent</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Log Level -->
+                            <div>
+                                <h3 class="text-sm font-medium mb-3">Logging Level</h3>
+                                <select id="log-level" class="w-full bg-light-dark text-text border border-border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                                    <option value="error">Error Only</option>
+                                    <option value="warning">Warning & Error</option>
+                                    <option value="info" selected>Info & Above</option>
+                                    <option value="debug">Debug (Verbose)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notification & Alerts -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-bell text-warning"></i>
+                                Notifications & Alerts
+                            </h2>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Alert Settings -->
+                            <div class="space-y-4">
+                                <h3 class="text-sm font-medium mb-1">Alert Settings</h3>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Email Notifications</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="email-toggle" class="sr-only" checked>
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">SMS Alerts</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="sms-toggle" class="sr-only">
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Desktop Notifications</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="desktop-toggle" class="sr-only" checked>
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Alert Thresholds -->
+                            <div>
+                                <h3 class="text-sm font-medium mb-3">Alert Thresholds</h3>
+                                
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span>Suspicious Traffic</span>
+                                            <span id="suspicious-threshold-value">30%</span>
+                                        </div>
+                                        <input type="range" min="10" max="50" value="30" class="w-full h-2 bg-light-dark rounded-lg appearance-none cursor-pointer accent-warning" id="suspicious-threshold">
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span>Attack Confidence</span>
+                                            <span id="confidence-threshold-value">80%</span>
+                                        </div>
+                                        <input type="range" min="50" max="95" value="80" class="w-full h-2 bg-light-dark rounded-lg appearance-none cursor-pointer accent-danger" id="confidence-threshold">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Email Configuration -->
+                            <div>
+                                <h3 class="text-sm font-medium mb-3">Email Recipients</h3>
+                                <div class="relative">
+                                    <input type="email" id="email-recipient" placeholder="Enter email address" class="w-full bg-light-dark text-text border border-border rounded-lg p-2 pl-10 focus:outline-none focus:ring-2 focus:ring-primary">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <i class="fas fa-envelope text-text-muted"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-2 text-xs text-text-muted">Use comma to separate multiple emails</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="h-64">
-                    <canvas id="attackDistributionChart"></canvas>
-                </div>
-            </div>
-            
-            <!-- Defense Metrics -->
-            <div class="neo-card p-6">
-                <div class="neo-card-header">
-                    <h2 class="neo-card-title">
-                        <i class="fas fa-shield-alt text-success"></i>
-                        Defense Metrics
-                    </h2>
-                </div>
-                
-                <div class="space-y-4">
-                    <!-- Mitigation Effectiveness -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm">Mitigation Effectiveness</span>
-                            <span id="mitigationValue" class="text-sm font-mono text-success">0%</span>
+                <!-- Dashboard Behavior and System Settings -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    <!-- Dashboard Behavior -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-sliders-h text-primary"></i>
+                                Dashboard Behavior
+                            </h2>
                         </div>
-                        <div class="neo-progress">
-                            <div id="mitigationBar" class="neo-progress-bar success" style="width: 0%"></div>
+                        
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Auto-refresh Data</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="auto-refresh-toggle" class="sr-only" checked>
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Real-time Monitoring</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="real-time-toggle" class="sr-only" checked>
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Show Tooltips</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="tooltips-toggle" class="sr-only" checked>
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-sm font-medium mb-3">Data Refresh Interval</h3>
+                                <div class="flex flex-col space-y-1">
+                                    <input type="range" min="1" max="60" value="5" class="w-full h-2 bg-light-dark rounded-lg appearance-none cursor-pointer accent-primary" id="refresh-interval">
+                                    <div class="flex justify-between text-xs text-text-muted">
+                                        <span>Fast (1s)</span>
+                                        <span id="refresh-interval-value">5s</span>
+                                        <span>Slow (60s)</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Detection Accuracy -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm">Detection Accuracy</span>
-                            <span id="detection-accuracy" class="text-sm font-mono text-primary">0%</span>
+                    <!-- Advanced Settings -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-code text-danger"></i>
+                                Advanced Settings
+                            </h2>
                         </div>
-                        <div class="neo-progress">
-                            <div id="detection-accuracy-bar" class="neo-progress-bar primary" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Response Time -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm">Avg. Response Time</span>
-                            <span id="response-time" class="text-sm font-mono text-secondary">0ms</span>
-                        </div>
-                        <div class="neo-progress">
-                            <div id="response-time-bar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #D9980D, var(--secondary));"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Protection Status -->
-                    <div class="bg-light-dark rounded-lg p-4 mt-4">
-                        <h3 class="text-sm font-medium mb-3">Protection Layers</h3>
-                        <div class="grid grid-cols-2 gap-3 text-sm">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-success"></div>
-                                <span>Layer 3 (Network)</span>
+                        
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Developer Mode</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="developer-toggle" class="sr-only">
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">API Access</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="api-toggle" class="sr-only">
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Debug Logging</span>
+                                    <label class="relative inline-flex items-center cursor-pointer w-16">
+                                        <input type="checkbox" id="debug-toggle" class="sr-only">
+                                        <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full peer-checked:bg-primary/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                        <span class="neo-toggle-label neo-toggle-on">ON</span>
+                                        <span class="neo-toggle-label neo-toggle-off">OFF</span>
+                                    </label>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-success"></div>
-                                <span>Layer 4 (Transport)</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-success"></div>
-                                <span>Layer 7 (Application)</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-success"></div>
-                                <span>DNS Protection</span>
+                            
+                            <div>
+                                <h3 class="text-sm font-medium mb-3">System Actions</h3>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button id="reset-counters-btn" class="neo-btn neo-btn-primary w-full py-2">
+                                        <i class="fas fa-sync-alt"></i>
+                                        <span>Reset Counters</span>
+                                    </button>
+                                    <button id="clear-logs-btn" class="neo-btn neo-btn-danger w-full py-2">
+                                        <i class="fas fa-trash-alt"></i>
+                                        <span>Clear Logs</span>
+                                    </button>
+                                    <button id="export-config-btn" class="neo-btn neo-btn-primary w-full py-2">
+                                        <i class="fas fa-download"></i>
+                                        <span>Export Config</span>
+                                    </button>
+                                    <button id="import-config-btn" class="neo-btn neo-btn-primary w-full py-2">
+                                        <i class="fas fa-upload"></i>
+                                        <span>Import Config</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -872,6 +1964,44 @@
         let trafficChart;
         let lastUpdate = Date.now();
         let sidebarCollapsed = false;
+        
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('hidden');
+                pane.classList.remove('active');
+            });
+            
+            // Show the selected tab
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {
+                selectedTab.classList.remove('hidden');
+                selectedTab.classList.add('active');
+            }
+            
+            // Update sidebar links active state
+            document.querySelectorAll('.neo-sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const activeLink = document.querySelector(`.neo-sidebar-link[data-tab="${tabName}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            // Update page title
+            updatePageTitle(tabName);
+        }
+        
+        function updatePageTitle(tabName) {
+            // Convert tab-name to Title Case
+            const formattedName = tabName.split('-').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+            
+            document.title = `CyberShield - ${formattedName}`;
+        }
         
         // Update system time
         function updateSystemTime() {
@@ -896,10 +2026,14 @@
                 sidebar.classList.add('neo-sidebar-hidden');
                 mainContent.classList.add('neo-main-expanded');
                 toggleBtn.classList.add('collapsed');
+                toggleBtn.setAttribute('aria-label', 'Show sidebar');
+                toggleBtn.setAttribute('title', 'Show sidebar');
             } else {
                 sidebar.classList.remove('neo-sidebar-hidden');
                 mainContent.classList.remove('neo-main-expanded');
                 toggleBtn.classList.remove('collapsed');
+                toggleBtn.setAttribute('aria-label', 'Hide sidebar');
+                toggleBtn.setAttribute('title', 'Hide sidebar');
             }
         }
         
@@ -941,6 +2075,26 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Setup sidebar toggle
             document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+            
+            // Add keyboard accessibility for the sidebar toggle
+            document.getElementById('sidebar-toggle').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleSidebar();
+                }
+            });
+            
+            // Setup tab switching
+            document.querySelectorAll('.neo-sidebar-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+            
+            // Load theme from localStorage
+            loadSavedTheme();
             
             // Update time initially and then every second
             updateSystemTime();
@@ -1073,6 +2227,12 @@
             document.querySelector('#alertBanner button').addEventListener('click', function() {
                 document.getElementById('alertBanner').classList.add('hidden');
             });
+            
+            // Initialize settings functionality
+            initSettings();
+            
+            // Setup setting toggles with notifications
+            setupSettingToggles();
         });
         
         // Matrix animation for cybersecurity aesthetic
@@ -1151,11 +2311,11 @@
             if (protocolCtx) {
                 window.protocolChart = new Chart(protocolCtx, {
                     type: 'doughnut',
-                    data: {
+                data: {
                         labels: ['TCP', 'UDP', 'ICMP'],
-                        datasets: [{
+                    datasets: [{
                             data: [60, 30, 10],
-                            backgroundColor: [
+                        backgroundColor: [
                                 'rgba(35, 200, 255, 0.7)',
                                 'rgba(255, 182, 41, 0.7)',
                                 'rgba(255, 64, 129, 0.7)'
@@ -1164,15 +2324,15 @@
                                 'rgba(35, 200, 255, 1)',
                                 'rgba(255, 182, 41, 1)',
                                 'rgba(255, 64, 129, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
                                 display: false
                             }
                         },
@@ -1295,7 +2455,7 @@
                 });
             }
         }
-        
+
         // Initialize geo distribution chart
         function initGeoDistributionChart() {
             const geoDistributionCtx = document.getElementById('geoDistributionChart');
@@ -1616,7 +2776,7 @@
                 attackDistributionChart.update();
             }
         }
-        
+
         // Update top source IPs in the UI
         function updateTopSourceIPs(sourceIPs) {
             const topIPsElement = document.getElementById('top-ips');
@@ -1672,6 +2832,620 @@
                 addAttackToTable(attack);
             });
         }
+
+        // Settings functionality
+        function initSettings() {
+            // Theme Selection
+            document.querySelectorAll('.theme-option').forEach(theme => {
+                theme.addEventListener('click', function() {
+                    // Remove selected class from all themes
+                    document.querySelectorAll('.theme-option').forEach(t => {
+                        t.classList.remove('selected');
+                        t.querySelector('.w-4.h-4').classList.remove('bg-primary');
+                    });
+                    
+                    // Add selected class to clicked theme
+                    this.classList.add('selected');
+                    this.querySelector('.w-4.h-4').classList.add('bg-primary');
+                    
+                    // Apply the theme
+                    applyTheme(this.id);
+                    
+                    // Save the setting to localStorage
+                    try {
+                        // Get existing settings or initialize empty object
+                        let settings = JSON.parse(localStorage.getItem('cybershield-settings') || '{}');
+                        
+                        // Update the theme setting
+                        settings.theme = this.id;
+                        
+                        // Save back to localStorage
+                        localStorage.setItem('cybershield-settings', JSON.stringify(settings));
+                    } catch (error) {
+                        console.error('Error saving theme setting:', error);
+                    }
+                });
+            });
+            
+            // Range sliders
+            document.getElementById('scan-frequency').addEventListener('input', function() {
+                document.getElementById('scan-frequency-value').textContent = this.value;
+            });
+            
+            document.getElementById('suspicious-threshold').addEventListener('input', function() {
+                document.getElementById('suspicious-threshold-value').textContent = `${this.value}%`;
+            });
+            
+            document.getElementById('confidence-threshold').addEventListener('input', function() {
+                document.getElementById('confidence-threshold-value').textContent = `${this.value}%`;
+            });
+            
+            document.getElementById('refresh-interval').addEventListener('input', function() {
+                document.getElementById('refresh-interval-value').textContent = `${this.value}s`;
+            });
+            
+            // Toggle switches
+            const toggleSwitches = ['density-toggle', 'animation-toggle', 'email-toggle', 'sms-toggle', 
+                'desktop-toggle', 'auto-refresh-toggle', 'real-time-toggle', 
+                'tooltips-toggle', 'developer-toggle', 'api-toggle', 'debug-toggle'];
+                
+            toggleSwitches.forEach(toggleId => {
+                const toggle = document.getElementById(toggleId);
+                if (toggle) {
+                    toggle.addEventListener('change', function() {
+                        // Save this toggle state
+                        saveSettingToLocalStorage(toggleId, this.checked);
+                    });
+                }
+            });
+            
+            // Protection mode radio buttons are now fully handled in setupSettingToggles
+            // Remove all listeners here to prevent duplicates
+            
+            // Email recipient input
+            document.getElementById('email-recipient')?.addEventListener('blur', function() {
+                saveSettingToLocalStorage('email-recipients', this.value);
+            });
+            
+            // Log level dropdown
+            document.getElementById('log-level')?.addEventListener('change', function() {
+                saveSettingToLocalStorage('log-level', this.value);
+            });
+            
+            // System action buttons
+            // Reset Counters button
+            document.getElementById('reset-counters-btn')?.addEventListener('click', function() {
+                // Reset all counter elements
+                document.getElementById('total-packets').textContent = '0';
+                document.getElementById('suspicious-ips').textContent = '0';
+                document.getElementById('blocked-ips').textContent = '0';
+                document.getElementById('packets-per-sec').textContent = '0';
+                document.getElementById('syn-packets').textContent = '0';
+                document.getElementById('network-throughput').textContent = '0 MB/s';
+                
+                // Reset progress bars
+                document.getElementById('packets-per-sec-bar').style.width = '0%';
+                document.getElementById('syn-packets-bar').style.width = '0%';
+                document.getElementById('network-throughput-bar').style.width = '0%';
+                document.getElementById('confidenceBar').style.width = '0%';
+                document.getElementById('confidenceValue').textContent = '0%';
+                
+                // Notification is now handled by setupSettingToggles
+            });
+            
+            // Clear Logs button
+            document.getElementById('clear-logs-btn')?.addEventListener('click', function() {
+                // Clear the attack table if it exists
+                const table = document.getElementById('attackTable');
+                if (table) {
+                    table.innerHTML = '';
+                }
+                
+                // Notification is now handled by setupSettingToggles
+            });
+            
+            // Export Config button
+            document.getElementById('export-config-btn')?.addEventListener('click', function() {
+                // Get current settings
+                const settings = localStorage.getItem('cybershield-settings') || '{}';
+                
+                // Create a Blob with the settings data
+                const blob = new Blob([settings], {type: 'application/json'});
+                
+                // Create download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'cybershield-settings.json';
+                
+                // Trigger download
+                document.body.appendChild(a);
+                a.click();
+                
+                // Cleanup
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+                
+                // Notification is now handled by setupSettingToggles
+            });
+            
+            // Import Config button
+            document.getElementById('import-config-btn')?.addEventListener('click', function() {
+                // Create file input
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                
+                // Handle file selection
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        try {
+                            // Validate JSON
+                            const settings = JSON.parse(event.target.result);
+                            
+                            // Store the imported settings
+                            localStorage.setItem('cybershield-settings', JSON.stringify(settings));
+                            
+                            // Apply the imported settings
+                            loadSettings();
+                            
+                            // Notification is now handled by setupSettingToggles
+                        } catch (error) {
+                            // Show error notification for invalid file (keep this one as it's an error case)
+                            showNotification('Invalid configuration file', 'error');
+                            console.error('Error importing settings:', error);
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                
+                // Trigger file selection
+                input.click();
+            });
+            
+            // Save Settings Button
+            document.getElementById('save-settings-btn').addEventListener('click', function() {
+                // Save all settings
+                saveAllSettings();
+                
+                // Notification is now handled by setupSettingToggles
+            });
+            
+            // Load saved settings on page load
+            loadSettings();
+        }
+        
+        // Helper function to save a single setting to localStorage
+        function saveSettingToLocalStorage(key, value) {
+            try {
+                // Get existing settings or initialize empty object
+                let settings = JSON.parse(localStorage.getItem('cybershield-settings') || '{}');
+                
+                // Update the specific setting
+                settings[key] = value;
+                
+                // Save back to localStorage
+                localStorage.setItem('cybershield-settings', JSON.stringify(settings));
+                
+                return true;
+            } catch (error) {
+                console.error('Error saving setting:', error);
+                return false;
+            }
+        }
+        
+        // Save all current settings
+        function saveAllSettings() {
+            // Collect all toggle states
+            document.querySelectorAll('input[type="checkbox"]').forEach(toggle => {
+                if (toggle.id) {
+                    saveSettingToLocalStorage(toggle.id, toggle.checked);
+                }
+            });
+            
+            // Collect all range slider values
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                if (slider.id) {
+                    saveSettingToLocalStorage(slider.id, slider.value);
+                }
+            });
+            
+            // Collect radio button states
+            const protectionMode = document.querySelector('input[name="protection-mode"]:checked');
+            if (protectionMode) {
+                saveSettingToLocalStorage('protection-mode', protectionMode.id);
+            }
+            
+            // Collect dropdown values
+            const logLevel = document.getElementById('log-level');
+            if (logLevel) {
+                saveSettingToLocalStorage('log-level', logLevel.value);
+            }
+            
+            // Collect input field values
+            const emailRecipient = document.getElementById('email-recipient');
+            if (emailRecipient) {
+                saveSettingToLocalStorage('email-recipients', emailRecipient.value);
+            }
+            
+            // Save current theme
+            const selectedTheme = document.querySelector('.theme-option.selected');
+            if (selectedTheme) {
+                saveSettingToLocalStorage('theme', selectedTheme.id);
+            }
+        }
+        
+        // Load all settings from localStorage
+        function loadSettings() {
+            try {
+                const settings = JSON.parse(localStorage.getItem('cybershield-settings') || '{}');
+                
+                // Apply each saved setting
+                Object.keys(settings).forEach(key => {
+                    const value = settings[key];
+                    
+                    // Handle toggles
+                    if (key.includes('toggle')) {
+                        const toggle = document.getElementById(key);
+                        if (toggle) {
+                            toggle.checked = value;
+                        }
+                    }
+                    
+                    // Handle range sliders
+                    else if (key.includes('threshold') || key.includes('frequency') || key.includes('interval')) {
+                        const slider = document.getElementById(key);
+                        if (slider) {
+                            slider.value = value;
+                            
+                            // Update displayed value
+                            const valueDisplay = document.getElementById(`${key}-value`);
+                            if (valueDisplay) {
+                                if (key.includes('threshold')) {
+                                    valueDisplay.textContent = `${value}%`;
+                                } else if (key.includes('interval')) {
+                                    valueDisplay.textContent = `${value}s`;
+                                } else {
+                                    valueDisplay.textContent = value;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Handle radio buttons
+                    else if (key === 'protection-mode') {
+                        const radio = document.getElementById(value);
+                        if (radio) {
+                            radio.checked = true;
+                        }
+                    }
+                    
+                    // Handle theme
+                    else if (key === 'theme') {
+                        const theme = document.getElementById(value);
+                        if (theme) {
+                            // Remove selected class from all themes
+                            document.querySelectorAll('.theme-option').forEach(t => {
+                                t.classList.remove('selected');
+                                t.querySelector('.w-4.h-4').classList.remove('bg-primary');
+                            });
+                            
+                            // Add selected class to saved theme
+                            theme.classList.add('selected');
+                            theme.querySelector('.w-4.h-4').classList.add('bg-primary');
+                            
+                            // Apply the theme without notification
+                            applyTheme(value, false);
+                        }
+                    }
+                    
+                    // Handle dropdown
+                    else if (key === 'log-level') {
+                        const dropdown = document.getElementById(key);
+                        if (dropdown) {
+                            dropdown.value = value;
+                        }
+                    }
+                    
+                    // Handle input fields
+                    else if (key === 'email-recipients') {
+                        const input = document.getElementById('email-recipient');
+                        if (input) {
+                            input.value = value;
+                        }
+                    }
+                });
+                
+                return true;
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                return false;
+            }
+        }
+        
+        // Apply theme changes
+        function applyTheme(themeId, showNotify = true) {
+            const root = document.documentElement;
+            
+            // Reset to default theme
+            root.style.setProperty('--primary', '#23C8FF');
+            root.style.setProperty('--primary-dark', '#15A1D9');
+            root.style.setProperty('--secondary', '#FFB629');
+            root.style.setProperty('--tertiary', '#FF4081');
+            root.style.setProperty('--success', '#1CEFAF');
+            root.style.setProperty('--warning', '#F5C346');
+            root.style.setProperty('--danger', '#FF5252');
+            root.style.setProperty('--dark', '#111A2C');
+            root.style.setProperty('--darker', '#0A0E1A');
+            root.style.setProperty('--light-dark', '#1E293B');
+            root.style.setProperty('--border', '#2B3A55');
+            
+            // Apply selected theme
+            switch(themeId) {
+                case 'theme-midnight':
+                    root.style.setProperty('--primary', '#7B42F6');
+                    root.style.setProperty('--primary-dark', '#6535D4');
+                    root.style.setProperty('--dark', '#0D1324');
+                    root.style.setProperty('--darker', '#030B16');
+                    root.style.setProperty('--light-dark', '#162039');
+                    root.style.setProperty('--border', '#253354');
+                    root.style.setProperty('--tertiary', '#FF3C7A');
+                    break;
+                case 'theme-matrix':
+                    root.style.setProperty('--primary', '#00FF00');
+                    root.style.setProperty('--primary-dark', '#00CC00');
+                    root.style.setProperty('--dark', '#001800');
+                    root.style.setProperty('--darker', '#001100');
+                    root.style.setProperty('--light-dark', '#002200');
+                    root.style.setProperty('--border', '#003300');
+                    root.style.setProperty('--success', '#00FFAA');
+                    root.style.setProperty('--secondary', '#AAFF00');
+                    root.style.setProperty('--tertiary', '#00FFFF');
+                    break;
+                case 'theme-crimson':
+                    root.style.setProperty('--primary', '#FF5252');
+                    root.style.setProperty('--primary-dark', '#D43535');
+                    root.style.setProperty('--dark', '#1A0D0D');
+                    root.style.setProperty('--darker', '#1A0505');
+                    root.style.setProperty('--light-dark', '#2B1616');
+                    root.style.setProperty('--border', '#3B2121');
+                    root.style.setProperty('--tertiary', '#FF9C3C');
+                    root.style.setProperty('--secondary', '#FF3C7A');
+                    break;
+            }
+            
+            // Show a notification about theme change if requested
+            if (showNotify) {
+                showNotification('Theme applied', 'success');
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-success/20 text-success border border-success/30' :
+                type === 'warning' ? 'bg-warning/20 text-warning border border-warning/30' :
+                type === 'error' ? 'bg-danger/20 text-danger border border-danger/30' :
+                'bg-primary/20 text-primary border border-primary/30'
+            }`;
+            
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-${
+                        type === 'success' ? 'check-circle' :
+                        type === 'warning' ? 'exclamation-triangle' :
+                        type === 'error' ? 'times-circle' :
+                        'info-circle'
+                    }"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // Add to DOM
+            document.body.appendChild(notification);
+            
+            // Remove after timeout
+            setTimeout(() => {
+                notification.classList.add('opacity-0');
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 3000);
+        }
+
+        // Load theme from localStorage
+        function loadSavedTheme() {
+            try {
+                const settings = JSON.parse(localStorage.getItem('cybershield-settings') || '{}');
+                
+                // Only apply theme if it exists in settings
+                if (settings.theme) {
+                    const theme = document.getElementById(settings.theme);
+                    if (theme) {
+                        // Remove selected class from all themes
+                        document.querySelectorAll('.theme-option').forEach(t => {
+                            t.classList.remove('selected');
+                            t.querySelector('.w-4.h-4').classList.remove('bg-primary');
+                        });
+                        
+                        // Add selected class to saved theme
+                        theme.classList.add('selected');
+                        theme.querySelector('.w-4.h-4').classList.add('bg-primary');
+                        
+                        // Apply the theme without showing notification on initial load
+                        applyTheme(settings.theme, false);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading theme:', error);
+            }
+        }
+
+        // Add notification function
+        function showSettingNotification(settingName, isEnabled, section = 'Settings') {
+            // Create notification element
+            const notification = document.createElement('div');
+            const status = isEnabled ? 'enabled' : 'disabled';
+            const statusClass = isEnabled ? 'bg-primary/20 text-primary border-primary/30' : 'bg-text-muted/20 text-text-muted border-text-muted/30';
+            
+            notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 ${statusClass} flex items-center gap-3 animate-fade-in border`;
+            
+            // Add icon based on enabled/disabled state
+            const iconClass = isEnabled ? 'fa-circle-check text-primary' : 'fa-circle-xmark text-text-muted';
+            
+            // Set notification content with section info
+            notification.innerHTML = `
+                <div class="w-8 h-8 rounded-full flex items-center justify-center">
+                    <i class="fas ${iconClass} text-lg"></i>
+                </div>
+                <div>
+                    <div class="font-medium">${settingName} ${status}</div>
+                    <div class="text-xs opacity-70">${section}</div>
+                </div>
+            `;
+            
+            // Add to body
+            document.body.appendChild(notification);
+            
+            // Remove after delay
+            setTimeout(() => {
+                notification.classList.add('opacity-0');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Toggle event listeners for settings
+        function setupSettingToggles() {
+            // Clean the DOM completely of any event listeners for protection mode radios
+            const radioContainer = document.querySelector('.protection-mode-container');
+            if (radioContainer) {
+                const clone = radioContainer.cloneNode(true);
+                radioContainer.parentNode.replaceChild(clone, radioContainer);
+            }
+            
+            // Avoid duplicate event listeners by removing them first
+            function safeAddListener(elementId, eventType, callback) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    // Clone the element to remove all event listeners
+                    const newElement = element.cloneNode(true);
+                    element.parentNode.replaceChild(newElement, element);
+                    
+                    // Add the event listener to the new element
+                    newElement.addEventListener(eventType, callback);
+                    return newElement;
+                }
+                return null;
+            }
+            
+            // Get current active tab for context
+            function getCurrentSection() {
+                const activeTab = document.querySelector('.tab-pane.active');
+                if (activeTab) {
+                    return activeTab.id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                }
+                return 'Settings';
+            }
+            
+            // List of all toggle switches with their display names
+            const toggles = [
+                { id: 'density-toggle', name: 'Compact UI' },
+                { id: 'animation-toggle', name: 'Chart Animations' },
+                { id: 'email-toggle', name: 'Email Notifications' },
+                { id: 'sms-toggle', name: 'SMS Alerts' },
+                { id: 'desktop-toggle', name: 'Desktop Notifications' },
+                { id: 'auto-refresh-toggle', name: 'Auto-refresh Data' },
+                { id: 'real-time-toggle', name: 'Real-time Monitoring' },
+                { id: 'tooltips-toggle', name: 'Show Tooltips' },
+                { id: 'developer-toggle', name: 'Developer Mode' },
+                { id: 'api-toggle', name: 'API Access' },
+                { id: 'debug-toggle', name: 'Debug Logging' }
+            ];
+            
+            // Add event listeners to each toggle
+            toggles.forEach(toggle => {
+                const element = safeAddListener(toggle.id, 'change', function() {
+                    const section = getCurrentSection();
+                    showSettingNotification(`${toggle.name}`, this.checked, section);
+                });
+            });
+            
+            // Protection mode radios - new improved implementation that should avoid duplicates
+            const protectionModes = [
+                { id: 'protection-normal', name: 'Normal Protection' },
+                { id: 'protection-aggressive', name: 'Aggressive Protection' },
+                { id: 'protection-learning', name: 'Learning Mode' }
+            ];
+            
+            // Remove and recreate all protection mode radio event listeners
+            protectionModes.forEach(mode => {
+                safeAddListener(mode.id, 'change', function() {
+                    if (this.checked) {
+                        saveSettingToLocalStorage('protection-mode', mode.id);
+                        // Only show notification for the checked radio
+                        showSettingNotification(mode.name, true, 'System Configuration');
+                    }
+                });
+            });
+            
+            // System action buttons - use once handler to prevent duplicate notifications
+            const actionButtons = [
+                { id: 'reset-counters-btn', name: 'Counters Reset' },
+                { id: 'clear-logs-btn', name: 'Logs Cleared' },
+                { id: 'export-config-btn', name: 'Configuration Exported' },
+                { id: 'import-config-btn', name: 'Configuration Imported' },
+                { id: 'save-settings-btn', name: 'Settings Saved' }
+            ];
+            
+            actionButtons.forEach(button => {
+                safeAddListener(button.id, 'click', function(e) {
+                    // Prevent default behavior that might cause duplicate event triggering
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showSettingNotification(button.name, true, 'System Configuration');
+                    
+                    // If this is a form submission or has additional functionality, run it after showing notification
+                    if (button.id === 'save-settings-btn') {
+                        saveAllSettings();
+                    } else if (button.id === 'reset-counters-btn') {
+                        // Reset counters logic if needed
+                        document.getElementById('total-packets').textContent = '0';
+                        document.getElementById('suspicious-ips').textContent = '0';
+                        document.getElementById('blocked-ips').textContent = '0';
+                    } else if (button.id === 'clear-logs-btn') {
+                        // Clear logs logic if needed
+                        const table = document.getElementById('attackTable');
+                        if (table) table.innerHTML = '';
+                    }
+                    
+                    return false;
+                });
+            });
+        }
+
+        // CSS for fade-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.3s ease-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
