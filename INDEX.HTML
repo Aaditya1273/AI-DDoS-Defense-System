@@ -553,6 +553,87 @@
             box-shadow: 0 0 5px var(--primary);
             animation: toggleRoll 0.3s ease forwards;
         }
+        
+        /* Enhanced radio styles for protection mode */
+        input[type="radio"][name="protection-mode"] ~ label .w-5 {
+            transition: all 0.3s ease;
+        }
+        
+        input[type="radio"][name="protection-mode"]:checked ~ label .w-5 {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+        
+        input[type="radio"][name="protection-mode"]:checked ~ label .w-3 {
+            opacity: 1;
+            box-shadow: 0 0 8px var(--primary);
+        }
+        
+        /* Add a glow effect to active radio */
+        @keyframes radioGlow {
+            0% { box-shadow: 0 0 3px var(--primary); }
+            50% { box-shadow: 0 0 8px var(--primary); }
+            100% { box-shadow: 0 0 3px var(--primary); }
+        }
+        
+        input[type="radio"][name="protection-mode"]:checked ~ label .w-3 {
+            animation: radioGlow 1.5s infinite;
+        }
+
+        /* Enhanced theme selection styles */
+        @keyframes themeGlow {
+            0% { box-shadow: 0 0 3px currentColor; }
+            50% { box-shadow: 0 0 10px currentColor; }
+            100% { box-shadow: 0 0 3px currentColor; }
+        }
+
+        .theme-option.selected .w-4.h-4 {
+            animation: themeGlow 1.5s infinite;
+        }
+
+        .theme-option .w-4.h-4 {
+            transition: all 0.3s ease;
+            background-color: transparent !important; /* Reset the background by default */
+        }
+
+        .theme-option:not(.selected) .w-4.h-4 {
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .theme-option:hover .w-4.h-4 {
+            transform: scale(1.1);
+        }
+
+        /* Theme specific colors */
+        #theme-cybershield.selected .w-4.h-4 {
+            box-shadow: 0 0 8px var(--primary) !important;
+            border-color: var(--primary) !important;
+            background-color: var(--primary) !important;
+        }
+
+        #theme-midnight.selected .w-4.h-4 {
+            box-shadow: 0 0 8px #7B42F6 !important;
+            border-color: #7B42F6 !important;
+            background-color: #7B42F6 !important;
+        }
+
+        #theme-matrix.selected .w-4.h-4 {
+            box-shadow: 0 0 8px #00FF00 !important;
+            border-color: #00FF00 !important;
+            background-color: #00FF00 !important;
+        }
+
+        #theme-crimson.selected .w-4.h-4 {
+            box-shadow: 0 0 8px #FF5252 !important;
+            border-color: #FF5252 !important;
+            background-color: #FF5252 !important;
+        }
+
+        /* Make unselected theme circles empty */
+        .theme-option:not(.selected) .w-4.h-4 {
+            background-color: transparent !important;
+        }
     </style>
 </head>
 <body>
@@ -1675,7 +1756,7 @@
                             <!-- Protection Mode -->
                             <div>
                                 <h3 class="text-sm font-medium mb-3">Protection Mode</h3>
-                                <div class="bg-light-dark rounded-lg p-4 space-y-3">
+                                <div class="bg-light-dark rounded-lg p-4 space-y-3 protection-mode-container">
                                     <div class="flex items-center">
                                         <input type="radio" id="protection-normal" name="protection-mode" class="hidden peer" checked>
                                         <label for="protection-normal" class="flex items-center justify-between w-full cursor-pointer p-2 rounded-lg peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:border-primary/30 border border-transparent">
@@ -2093,8 +2174,9 @@
                 });
             });
             
-            // Load theme from localStorage
+            // Load theme from localStorage and initialize theme buttons
             loadSavedTheme();
+            initThemeCircles();
             
             // Update time initially and then every second
             updateSystemTime();
@@ -2838,32 +2920,49 @@
             // Theme Selection
             document.querySelectorAll('.theme-option').forEach(theme => {
                 theme.addEventListener('click', function() {
-                    // Remove selected class from all themes
+                    const themeId = this.id;
+                    
+                    // Save theme to localStorage
+                    saveSettingToLocalStorage('theme', themeId);
+                    
+                    // Reset all themes
                     document.querySelectorAll('.theme-option').forEach(t => {
                         t.classList.remove('selected');
-                        t.querySelector('.w-4.h-4').classList.remove('bg-primary');
+                        
+                        // Reset all theme circles completely
+                        const circle = t.querySelector('.w-4.h-4');
+                        if (circle) {
+                            // Remove both classes and inline styles
+                            circle.className = 'w-4 h-4 rounded-full border-2 border-primary';
+                            circle.style.backgroundColor = '';
+                            circle.style.borderColor = '';
+                            circle.style.boxShadow = '';
+                        }
                     });
                     
-                    // Add selected class to clicked theme
+                    // Add selected class to selected theme
                     this.classList.add('selected');
-                    this.querySelector('.w-4.h-4').classList.add('bg-primary');
                     
-                    // Apply the theme
-                    applyTheme(this.id);
-                    
-                    // Save the setting to localStorage
-                    try {
-                        // Get existing settings or initialize empty object
-                        let settings = JSON.parse(localStorage.getItem('cybershield-settings') || '{}');
-                        
-                        // Update the theme setting
-                        settings.theme = this.id;
-                        
-                        // Save back to localStorage
-                        localStorage.setItem('cybershield-settings', JSON.stringify(settings));
-                    } catch (error) {
-                        console.error('Error saving theme setting:', error);
+                    // Update the circle to be filled with appropriate color
+                    const selectedCircle = this.querySelector('.w-4.h-4');
+                    if (selectedCircle) {
+                        // Set appropriate colors based on theme
+                        if (themeId === 'theme-cybershield') {
+                            selectedCircle.classList.add('bg-primary');
+                        } else if (themeId === 'theme-midnight') {
+                            selectedCircle.style.backgroundColor = '#7B42F6';
+                            selectedCircle.style.borderColor = '#7B42F6';
+                        } else if (themeId === 'theme-matrix') {
+                            selectedCircle.style.backgroundColor = '#00FF00';
+                            selectedCircle.style.borderColor = '#00FF00';
+                        } else if (themeId === 'theme-crimson') {
+                            selectedCircle.style.backgroundColor = '#FF5252';
+                            selectedCircle.style.borderColor = '#FF5252';
+                        }
                     }
+                    
+                    // Apply theme
+                    applyTheme(themeId);
                 });
             });
             
@@ -2973,40 +3072,26 @@
             
             // Import Config button
             document.getElementById('import-config-btn')?.addEventListener('click', function() {
-                // Create file input
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.json';
-                
-                // Handle file selection
-                input.onchange = e => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    
+                document.getElementById('import-file').click();
+            });
+            
+            // Handle file import
+            document.getElementById('import-file').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
                     const reader = new FileReader();
-                    reader.onload = event => {
+                    reader.onload = function(event) {
                         try {
-                            // Validate JSON
-                            const settings = JSON.parse(event.target.result);
-                            
-                            // Store the imported settings
-                            localStorage.setItem('cybershield-settings', JSON.stringify(settings));
-                            
-                            // Apply the imported settings
+                            const config = JSON.parse(event.target.result);
+                            localStorage.setItem('cybershield-settings', JSON.stringify(config));
                             loadSettings();
-                            
-                            // Notification is now handled by setupSettingToggles
                         } catch (error) {
-                            // Show error notification for invalid file (keep this one as it's an error case)
-                            showNotification('Invalid configuration file', 'error');
+                            // Log error but don't show notification
                             console.error('Error importing settings:', error);
                         }
                     };
                     reader.readAsText(file);
-                };
-                
-                // Trigger file selection
-                input.click();
+                }
             });
             
             // Save Settings Button
@@ -3269,20 +3354,69 @@
                 
                 // Only apply theme if it exists in settings
                 if (settings.theme) {
+                    // First reset all themes to normal state
+                    document.querySelectorAll('.theme-option').forEach(t => {
+                        t.classList.remove('selected');
+                        
+                        // Clear all theme circles
+                        const circle = t.querySelector('.w-4.h-4');
+                        if (circle) {
+                            // Remove both class and inline styles
+                            circle.classList.remove('bg-primary');
+                            circle.style.backgroundColor = '';
+                            circle.style.borderColor = '';
+                            circle.style.boxShadow = '';
+                            circle.className = 'w-4 h-4 rounded-full border-2 border-primary';
+                        }
+                    });
+                    
+                    // Find the saved theme element and mark it as selected
                     const theme = document.getElementById(settings.theme);
                     if (theme) {
-                        // Remove selected class from all themes
-                        document.querySelectorAll('.theme-option').forEach(t => {
-                            t.classList.remove('selected');
-                            t.querySelector('.w-4.h-4').classList.remove('bg-primary');
-                        });
-                        
-                        // Add selected class to saved theme
                         theme.classList.add('selected');
-                        theme.querySelector('.w-4.h-4').classList.add('bg-primary');
                         
-                        // Apply the theme without showing notification on initial load
+                        // Update the circle style for just this theme
+                        const selectedCircle = theme.querySelector('.w-4.h-4');
+                        if (selectedCircle) {
+                            const themeId = settings.theme;
+                            
+                            if (themeId === 'theme-cybershield') {
+                                selectedCircle.classList.add('bg-primary');
+                            } else if (themeId === 'theme-midnight') {
+                                selectedCircle.style.backgroundColor = '#7B42F6';
+                                selectedCircle.style.borderColor = '#7B42F6';
+                            } else if (themeId === 'theme-matrix') {
+                                selectedCircle.style.backgroundColor = '#00FF00';
+                                selectedCircle.style.borderColor = '#00FF00';
+                            } else if (themeId === 'theme-crimson') {
+                                selectedCircle.style.backgroundColor = '#FF5252';
+                                selectedCircle.style.borderColor = '#FF5252';
+                            }
+                        }
+                        
+                        // Apply the theme without notification
                         applyTheme(settings.theme, false);
+                    } else {
+                        // If theme not found, default to CyberShield
+                        const defaultTheme = document.getElementById('theme-cybershield');
+                        if (defaultTheme) {
+                            defaultTheme.classList.add('selected');
+                            const defaultCircle = defaultTheme.querySelector('.w-4.h-4');
+                            if (defaultCircle) {
+                                defaultCircle.classList.add('bg-primary');
+                            }
+                            applyTheme('theme-cybershield', false);
+                        }
+                    }
+                } else {
+                    // If no saved theme, default to CyberShield
+                    const defaultTheme = document.getElementById('theme-cybershield');
+                    if (defaultTheme) {
+                        defaultTheme.classList.add('selected');
+                        const defaultCircle = defaultTheme.querySelector('.w-4.h-4');
+                        if (defaultCircle) {
+                            defaultCircle.classList.add('bg-primary');
+                        }
                     }
                 }
             } catch (error) {
@@ -3349,15 +3483,6 @@
                 return null;
             }
             
-            // Get current active tab for context
-            function getCurrentSection() {
-                const activeTab = document.querySelector('.tab-pane.active');
-                if (activeTab) {
-                    return activeTab.id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
-                }
-                return 'Settings';
-            }
-            
             // List of all toggle switches with their display names
             const toggles = [
                 { id: 'density-toggle', name: 'Compact UI' },
@@ -3376,12 +3501,12 @@
             // Add event listeners to each toggle
             toggles.forEach(toggle => {
                 const element = safeAddListener(toggle.id, 'change', function() {
-                    const section = getCurrentSection();
-                    showSettingNotification(`${toggle.name}`, this.checked, section);
+                    // Save this toggle state
+                    saveSettingToLocalStorage(toggle.id, this.checked);
                 });
             });
             
-            // Protection mode radios - new improved implementation that should avoid duplicates
+            // Protection mode radios - ensure active state is properly visible
             const protectionModes = [
                 { id: 'protection-normal', name: 'Normal Protection' },
                 { id: 'protection-aggressive', name: 'Aggressive Protection' },
@@ -3393,8 +3518,29 @@
                 safeAddListener(mode.id, 'change', function() {
                     if (this.checked) {
                         saveSettingToLocalStorage('protection-mode', mode.id);
-                        // Only show notification for the checked radio
-                        showSettingNotification(mode.name, true, 'System Configuration');
+                        
+                        // Manually update the visual state of all radio buttons
+                        protectionModes.forEach(m => {
+                            const radio = document.getElementById(m.id);
+                            const label = document.querySelector(`label[for="${m.id}"]`);
+                            const indicator = label.querySelector('.w-3.h-3');
+                            
+                            if (radio && label) {
+                                if (radio.checked) {
+                                    label.classList.add('bg-primary/10', 'text-primary', 'border-primary/30');
+                                    label.classList.remove('border-transparent');
+                                    label.querySelector('.border-2').classList.remove('border-text-muted');
+                                    label.querySelector('.border-2').classList.add('border-primary');
+                                    if (indicator) indicator.classList.add('opacity-100');
+                                } else {
+                                    label.classList.remove('bg-primary/10', 'text-primary', 'border-primary/30');
+                                    label.classList.add('border-transparent');
+                                    label.querySelector('.border-2').classList.add('border-text-muted');
+                                    label.querySelector('.border-2').classList.remove('border-primary');
+                                    if (indicator) indicator.classList.remove('opacity-100');
+                                }
+                            }
+                        });
                     }
                 });
             });
@@ -3413,7 +3559,6 @@
                     // Prevent default behavior that might cause duplicate event triggering
                     e.preventDefault();
                     e.stopPropagation();
-                    showSettingNotification(button.name, true, 'System Configuration');
                     
                     // If this is a form submission or has additional functionality, run it after showing notification
                     if (button.id === 'save-settings-btn') {
@@ -3446,6 +3591,37 @@
             }
         `;
         document.head.appendChild(style);
+
+        // Reset and initialize theme circles to ensure only one is active
+        function initThemeCircles() {
+            // Reset all theme circles to their default state
+            document.querySelectorAll('.theme-option').forEach(theme => {
+                const circle = theme.querySelector('.w-4.h-4');
+                if (circle) {
+                    // Reset all inline styles
+                    circle.style = '';
+                    circle.className = 'w-4 h-4 rounded-full border-2 border-primary';
+                    
+                    // Only add background to the selected theme
+                    if (theme.classList.contains('selected')) {
+                        const themeId = theme.id;
+                        
+                        if (themeId === 'theme-cybershield') {
+                            circle.classList.add('bg-primary');
+                        } else if (themeId === 'theme-midnight') {
+                            circle.style.backgroundColor = '#7B42F6';
+                            circle.style.borderColor = '#7B42F6';
+                        } else if (themeId === 'theme-matrix') {
+                            circle.style.backgroundColor = '#00FF00';
+                            circle.style.borderColor = '#00FF00';
+                        } else if (themeId === 'theme-crimson') {
+                            circle.style.backgroundColor = '#FF5252';
+                            circle.style.borderColor = '#FF5252';
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>

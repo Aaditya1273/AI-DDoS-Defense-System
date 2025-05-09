@@ -652,7 +652,7 @@ function applyTheme(themeId, showNotify = true) {
     
     // Show a notification about theme change if requested
     if (showNotify) {
-        showNotification('Theme applied', 'success');
+    showNotification('Theme applied', 'success');
     }
 }
 
