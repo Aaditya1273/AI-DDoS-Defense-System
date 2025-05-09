@@ -1,0 +1,118 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Development environments
+.idea/
+.vscode/
+*.swp
+.DS_Store
+.ipynb_checkpoints
+*.code-workspace
+.history/
+
+# ML models and datasets
+*.h5
+*.pkl
+*.model
+*.joblib
+models/
+datasets/
+*.csv
+*.npy
+*.npz
+*.pt
+*.pth
+*.onnx
+*.tensorflow
+saved_models/
+checkpoints/
+
+# Project specific
+logs/
+*.log
+traffic_data/
+attack_logs/
+*.pcap
+*.cap
+*.pcapng
+captures/
+recorded_traffic/
+
+# MongoDB and Redis data
+data/
+dump.rdb
+*.rdb
+redis*.aof
+mongodb/
+db/
+mongodb_data/
+
+# Temporary files
+temp/
+tmp/
+.temp/
+.tmp/
+*.tmp
+*.bak
+*.backup
+*.old
+
+# User-specific files
+.user/
+.cache/
+.custom_config
+*.local
+local_settings.py
+instance/
+.webassets-cache
+
+# Test artifacts
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+
+# System-specific
+*.exe
+*.dll
+*.so
+*.dylib
+node_modules/
+package-lock.json
+
+# Security (prevent accidental commit of sensitive data)
+*.key
+*.pem
+*.cert
+*.crt
+*.p12
+*.pfx
+*credentials*
+*secret*
+*password*
+*token*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local 
