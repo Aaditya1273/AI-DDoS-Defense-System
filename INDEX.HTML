@@ -542,16 +542,50 @@
             100% { transform: translateX(20px) rotate(360deg); }
         }
         
-        input[type="checkbox"] ~ div.w-11::after {
-            background-color: #6B7280; /* Grey color for off state */
-            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+        /* Add ripple effect when toggling */
+        @keyframes togglePulse {
+            0% { box-shadow: 0 0 0 0 rgba(35, 200, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(35, 200, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(35, 200, 255, 0); }
         }
         
         input[type="checkbox"]:checked ~ div.w-11::after {
-            background-color: var(--primary); /* Theme primary color for on state */
-            box-shadow: 0 0 5px var(--primary);
-            animation: toggleRoll 0.3s ease forwards;
+            animation: toggleRoll 0.3s ease forwards, togglePulse 0.5s ease-out;
+        }
+        
+        /* Improve toggle track appearance */
+        input[type="checkbox"] ~ div.w-11 {
+            position: relative;
+            transition: all 0.3s ease;
+            overflow: visible;
+        }
+        
+        /* Add subtle sparkle effect for ON state */
+        @keyframes sparkle {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        input[type="checkbox"]:checked ~ div.w-11::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            box-shadow: 0 0 4px 1px var(--primary);
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            animation: sparkle 1.5s infinite;
+            z-index: 1;
+        }
+        
+        /* Add active state feedback */
+        input[type="checkbox"]:active ~ div.w-11::after {
+            width: 18px;
+            transition: width 0.1s ease;
         }
         
         /* Enhanced radio styles for protection mode */
@@ -633,6 +667,92 @@
         /* Make unselected theme circles empty */
         .theme-option:not(.selected) .w-4.h-4 {
             background-color: transparent !important;
+        }
+        
+        /* Toggle Switch Enhancements */
+        /* Base styles for all toggle tracks */
+        input[type="checkbox"] ~ div.w-11 {
+            position: relative;
+            background-color: rgba(107, 114, 128, 0.2);
+            border-color: rgba(107, 114, 128, 0.3);
+            transition: all 0.3s ease;
+            overflow: visible;
+        }
+        
+        /* ON state track styles */
+        input[type="checkbox"]:checked ~ div.w-11 {
+            background-color: rgba(35, 200, 255, 0.2);
+            border-color: rgba(35, 200, 255, 0.3);
+        }
+        
+        /* OFF state handle styles */
+        input[type="checkbox"] ~ div.w-11::after {
+            background-color: #6B7280; /* Grey color for off state */
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        /* ON state handle styles */
+        input[type="checkbox"]:checked ~ div.w-11::after {
+            background-color: var(--primary); /* Theme primary color for on state */
+            box-shadow: 0 0 5px var(--primary);
+        }
+        
+        /* Handle animations */
+        @keyframes toggleRoll {
+            0% { transform: translateX(0) rotate(0deg); }
+            100% { transform: translateX(20px) rotate(360deg); }
+        }
+        
+        /* Ripple effect animation */
+        @keyframes togglePulse {
+            0% { box-shadow: 0 0 0 0 rgba(35, 200, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(35, 200, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(35, 200, 255, 0); }
+        }
+        
+        /* Apply both animations to ON state */
+        input[type="checkbox"]:checked ~ div.w-11::after {
+            animation: toggleRoll 0.3s ease forwards, togglePulse 0.5s ease-out;
+        }
+        
+        /* Sparkle effect for ON state */
+        @keyframes sparkle {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        /* Add decorative sparkle to ON state */
+        input[type="checkbox"]:checked ~ div.w-11::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            box-shadow: 0 0 4px 1px var(--primary);
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            animation: sparkle 1.5s infinite;
+            z-index: 1;
+        }
+        
+        /* Press effect for better tactile feedback */
+        input[type="checkbox"]:active ~ div.w-11::after {
+            width: 18px;
+            transition: width 0.1s ease;
+        }
+        
+        /* Hover state for better UX */
+        div.w-11:hover::after {
+            transform: scale(1.05);
+        }
+        
+        /* Focus state for accessibility */
+        input[type="checkbox"]:focus ~ div.w-11 {
+            box-shadow: 0 0 0 2px rgba(35, 200, 255, 0.3);
         }
     </style>
 </head>
@@ -2178,6 +2298,9 @@
             loadSavedTheme();
             initThemeCircles();
             
+            // Initialize toggle switch enhancements
+            initToggleSwitches();
+            
             // Update time initially and then every second
             updateSystemTime();
             setInterval(updateSystemTime, 1000);
@@ -3621,6 +3744,97 @@
                     }
                 }
             });
+        }
+
+        // Function to enhance toggle switches with better interaction feedback
+        function initToggleSwitches() {
+            // Get all toggle switches
+            const toggles = document.querySelectorAll('input[type="checkbox"]');
+            
+            // Add enhanced click and keyboard interactions
+            toggles.forEach(toggle => {
+                // Already has event listeners for change to save settings
+                // Let's add additional visual feedback
+
+                // Create a ripple effect container for each toggle
+                const toggleWrapper = toggle.closest('label');
+                if (toggleWrapper) {
+                    // Store initial state to detect changes
+                    let initialState = toggle.checked;
+                    
+                    // Add enhanced keyboard interaction
+                    toggle.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            this.checked = !this.checked;
+                            
+                            // Dispatch change event to trigger any change listeners
+                            const event = new Event('change', { bubbles: true });
+                            this.dispatchEvent(event);
+                            
+                            // Add extra visual feedback
+                            addToggleVisualFeedback(this);
+                        }
+                    });
+                    
+                    // Add enhanced mouse interaction
+                    toggle.addEventListener('change', function() {
+                        // Only add visual feedback if state actually changed
+                        if (initialState !== this.checked) {
+                            addToggleVisualFeedback(this);
+                            initialState = this.checked;
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Function to add visual feedback when toggle state changes
+        function addToggleVisualFeedback(toggleElement) {
+            const isChecked = toggleElement.checked;
+            const track = toggleElement.nextElementSibling;
+            
+            if (track) {
+                // Add an additional temporary animation class
+                track.classList.add('toggle-animated');
+                
+                // Create a temporary flash effect
+                const flash = document.createElement('div');
+                flash.className = 'toggle-flash';
+                flash.style.position = 'absolute';
+                flash.style.top = '50%';
+                flash.style.left = isChecked ? '75%' : '25%';
+                flash.style.transform = 'translate(-50%, -50%)';
+                flash.style.width = '15px';
+                flash.style.height = '15px';
+                flash.style.borderRadius = '50%';
+                flash.style.backgroundColor = isChecked ? 'var(--primary)' : '#6B7280';
+                flash.style.opacity = '0';
+                flash.style.pointerEvents = 'none';
+                flash.style.animation = 'toggleFlash 0.3s ease-out';
+                
+                // Add flash animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes toggleFlash {
+                        0% { opacity: 0.7; transform: translate(-50%, -50%) scale(0.5); }
+                        100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // Add flash element
+                track.appendChild(flash);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    track.classList.remove('toggle-animated');
+                    if (flash && flash.parentNode) {
+                        flash.parentNode.removeChild(flash);
+                    }
+                    document.head.removeChild(style);
+                }, 300);
+            }
         }
     </script>
 </body>
