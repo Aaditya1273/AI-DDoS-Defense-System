@@ -480,31 +480,126 @@ function loadSavedSettings(themeAlreadyLoaded = true) {
 // Load only the theme setting from localStorage
 function loadSavedTheme() {
     try {
-        const settings = JSON.parse(localStorage.getItem('cybershield-settings') || '{}');
-        
-        // Only apply theme if it exists in settings
-        if (settings.theme) {
-            const theme = document.getElementById(settings.theme);
-            if (theme) {
-                // Remove selected class from all themes
-                document.querySelectorAll('.theme-option').forEach(t => {
-                    t.classList.remove('selected');
-                    t.querySelector('.w-4.h-4').classList.remove('bg-primary');
-                });
+        const savedSettings = localStorage.getItem('cybershield-settings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            
+            if (settings.theme) {
+                // Apply the theme
+                applyThemeFromLocalStorage();
                 
-                // Add selected class to saved theme
-                theme.classList.add('selected');
-                theme.querySelector('.w-4.h-4').classList.add('bg-primary');
+                // If we have a bright theme, add the special class
+                if (settings.theme === 'bright') {
+                    document.body.classList.add('theme-bright');
+                    // Also apply light mode if specified
+                    if (settings.darkMode === false) {
+                        document.body.classList.add('light-mode');
+                    }
+                } else {
+                    document.body.classList.remove('theme-bright', 'light-mode');
+                }
                 
-                // Apply the theme without showing notification
-                applyTheme(settings.theme, false);
+                // Apply theme variables directly as a fallback
+                applyThemeDirectly(settings.theme);
             }
         }
-        
-        return true;
     } catch (error) {
         console.error('Error loading theme:', error);
-        return false;
+    }
+}
+
+// Function to apply theme from localStorage CSS
+function applyThemeFromLocalStorage() {
+    const themeCSS = localStorage.getItem('cybershield-theme-css');
+    
+    if (themeCSS) {
+        // Find or create a style element for the theme
+        let themeStyle = document.getElementById('dynamic-theme-styles');
+        if (!themeStyle) {
+            themeStyle = document.createElement('style');
+            themeStyle.id = 'dynamic-theme-styles';
+            document.head.appendChild(themeStyle);
+        }
+        
+        // Apply the CSS
+        themeStyle.textContent = themeCSS;
+        
+        // Store last check timestamp
+        window.lastThemeCheck = Date.now();
+    }
+}
+
+// Apply theme variables directly to the document
+function applyThemeDirectly(themeName) {
+    const rootStyle = document.documentElement.style;
+    
+    // Apply selected theme
+    switch(themeName) {
+        case 'midnight':
+            rootStyle.setProperty('--primary', '#7B42F6');
+            rootStyle.setProperty('--primary-dark', '#6535D4');
+            rootStyle.setProperty('--dark', '#0D1324');
+            rootStyle.setProperty('--darker', '#030B16');
+            rootStyle.setProperty('--light-dark', '#162039');
+            rootStyle.setProperty('--border', '#253354');
+            rootStyle.setProperty('--tertiary', '#FF3C7A');
+            break;
+        case 'matrix':
+            rootStyle.setProperty('--primary', '#00FF00');
+            rootStyle.setProperty('--primary-dark', '#00CC00');
+            rootStyle.setProperty('--dark', '#001800');
+            rootStyle.setProperty('--darker', '#001100');
+            rootStyle.setProperty('--light-dark', '#002200');
+            rootStyle.setProperty('--border', '#003300');
+            rootStyle.setProperty('--success', '#00FFAA');
+            rootStyle.setProperty('--secondary', '#AAFF00');
+            rootStyle.setProperty('--tertiary', '#00FFFF');
+            break;
+        case 'crimson':
+            rootStyle.setProperty('--primary', '#FF5252');
+            rootStyle.setProperty('--primary-dark', '#D43535');
+            rootStyle.setProperty('--dark', '#1A0D0D');
+            rootStyle.setProperty('--darker', '#1A0505');
+            rootStyle.setProperty('--light-dark', '#2B1616');
+            rootStyle.setProperty('--border', '#3B2121');
+            rootStyle.setProperty('--tertiary', '#FF9C3C');
+            rootStyle.setProperty('--secondary', '#FF3C7A');
+            break;
+        case 'halloween':
+            rootStyle.setProperty('--primary', '#FF6600');
+            rootStyle.setProperty('--primary-dark', '#CC5200');
+            rootStyle.setProperty('--dark', '#0D0D14');
+            rootStyle.setProperty('--darker', '#07070D');
+            rootStyle.setProperty('--light-dark', '#13131F');
+            rootStyle.setProperty('--border', '#1E1E2F');
+            rootStyle.setProperty('--tertiary', '#00FF00');
+            rootStyle.setProperty('--secondary', '#8B00FF');
+            rootStyle.setProperty('--success', '#66FF66');
+            rootStyle.setProperty('--warning', '#FFCC00');
+            break;
+        case 'bright':
+            rootStyle.setProperty('--primary', '#0066CC');
+            rootStyle.setProperty('--primary-dark', '#0055AA');
+            rootStyle.setProperty('--dark', '#FFFFFF');
+            rootStyle.setProperty('--darker', '#F0F4F8');
+            rootStyle.setProperty('--light-dark', '#E5EAEF');
+            rootStyle.setProperty('--border', '#D0D8E0');
+            rootStyle.setProperty('--text', '#333333');
+            rootStyle.setProperty('--text-muted', '#6D7A8C');
+            rootStyle.setProperty('--tertiary', '#CC00FF');
+            rootStyle.setProperty('--secondary', '#FF6600');
+            break;
+        default: // cybershield
+            rootStyle.setProperty('--primary', '#23C8FF');
+            rootStyle.setProperty('--primary-dark', '#15A1D9');
+            rootStyle.setProperty('--secondary', '#FFB629');
+            rootStyle.setProperty('--tertiary', '#FF4081');
+            rootStyle.setProperty('--dark', '#111A2C');
+            rootStyle.setProperty('--darker', '#0A0E1A');
+            rootStyle.setProperty('--light-dark', '#1E293B');
+            rootStyle.setProperty('--border', '#2B3A55');
+            rootStyle.setProperty('--text', '#E2E8F0');
+            rootStyle.setProperty('--text-muted', '#94A3B8');
     }
 }
 
@@ -648,6 +743,37 @@ function applyTheme(themeId, showNotify = true) {
             root.style.setProperty('--tertiary', '#FF9C3C');
             root.style.setProperty('--secondary', '#FF3C7A');
             break;
+        case 'theme-halloween':
+            root.style.setProperty('--primary', '#FF6600');
+            root.style.setProperty('--primary-dark', '#CC5200');
+            root.style.setProperty('--dark', '#0D0D14');
+            root.style.setProperty('--darker', '#07070D');
+            root.style.setProperty('--light-dark', '#13131F');
+            root.style.setProperty('--border', '#1E1E2F');
+            root.style.setProperty('--tertiary', '#00FF00');
+            root.style.setProperty('--secondary', '#8B00FF');
+            root.style.setProperty('--success', '#66FF66');
+            root.style.setProperty('--warning', '#FFCC00');
+            break;
+        case 'theme-bright':
+            root.style.setProperty('--primary', '#0066CC');
+            root.style.setProperty('--primary-dark', '#0055AA');
+            root.style.setProperty('--dark', '#FFFFFF');
+            root.style.setProperty('--darker', '#F0F4F8');
+            root.style.setProperty('--light-dark', '#E5EAEF');
+            root.style.setProperty('--border', '#D0D8E0');
+            root.style.setProperty('--text', '#333333');
+            root.style.setProperty('--text-muted', '#6D7A8C');
+            root.style.setProperty('--tertiary', '#CC00FF');
+            root.style.setProperty('--secondary', '#FF6600');
+            // Add class to body for special handling
+            document.body.classList.add('theme-bright');
+            break;
+    }
+    
+    // Remove bright theme class if not selected
+    if (themeId !== 'theme-bright') {
+        document.body.classList.remove('theme-bright');
     }
     
     // Show a notification about theme change if requested

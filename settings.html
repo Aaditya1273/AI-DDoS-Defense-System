@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberShield - Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Add references to your CSS files -->
+    <style>
+        /* Base styles */
+        :root {
+            --primary: #23C8FF;
+            --secondary: #FFA726;
+            --tertiary: #FF4181;
+            --success: #00E676;
+            --warning: #FFD54F;
+            --danger: #FF1744;
+            --dark: #0A1222;
+            --darker: #06090F;
+            --light-dark: #111A2F;
+            --text: #E4E6F0;
+            --text-muted: #9195A8;
+            --border: #1F2A43;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Header styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .header p {
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Button styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(35, 200, 255, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(35, 200, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: rgba(35, 200, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--darker);
+        }
+        
+        .btn-primary:hover {
+            background-color: rgba(35, 200, 255, 0.8);
+        }
+        
+        /* Card styles */
+        .card {
+            background-color: rgba(17, 26, 47, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.125rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-title i {
+            color: var(--primary);
+        }
+        
+        /* Grid layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* Form elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: var(--light-dark);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            color: var(--text);
+        }
+        
+        /* Toggle switch */
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--light-dark);
+            border: 1px solid var(--border);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 2px;
+            background-color: var(--primary);
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: rgba(35, 200, 255, 0.2);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(23px);
+        }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--light-dark);
+            color: var(--text);
+        }
+        
+        .nav-link.active {
+            background-color: rgba(35, 200, 255, 0.1);
+            color: var(--primary);
+        }
+        
+        /* Additional utilities */
+        .text-primary { color: var(--primary); }
+        .text-secondary { color: var(--secondary); }
+        .text-tertiary { color: var(--tertiary); }
+        .text-warning { color: var(--warning); }
+        .text-muted { color: var(--text-muted); }
+        
+        /* Success message */
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 230, 118, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 12px 20px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .success-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Theme option styles */
+        .theme-option {
+            border: 2px solid transparent;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .theme-option.selected {
+            border-color: var(--primary);
+        }
+        
+        .theme-preview {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        
+        .theme-circle {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            transition: all 0.2s;
+        }
+        
+        /* Light mode styles */
+        .light-mode {
+            background-color: #F0F4F8;
+            color: #333333;
+        }
+        
+        .light-mode .card {
+            background-color: white;
+            border-color: #E2E8F0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .light-mode .text-muted {
+            color: #64748B;
+        }
+        
+        .light-mode .form-control {
+            background-color: #F8FAFC;
+            border-color: #E2E8F0;
+            color: #333333;
+        }
+        
+        .light-mode .card-title {
+            color: #0066CC;
+        }
+        
+        .light-mode .btn {
+            background-color: #E6F0FF;
+            color: #0066CC;
+            border-color: #BBDDFF;
+        }
+        
+        .light-mode .btn-primary {
+            background-color: #0066CC;
+            color: white;
+        }
+        
+        .light-mode .toggle-slider {
+            background-color: #E2E8F0;
+        }
+        
+        /* Custom styling for radio buttons in light mode */
+        .light-mode input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #D0D8E0;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            vertical-align: middle;
+            margin-right: 8px;
+            background-color: white;
+        }
+        
+        .light-mode input[type="radio"]:checked {
+            border-color: #0066CC;
+        }
+        
+        .light-mode input[type="radio"]:checked:before {
+            content: "";
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #0066CC;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .light-mode input[type="radio"] + label {
+            color: #333333;
+            cursor: pointer;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        
+        /* Radio container styling in light mode */
+        .light-mode div[style*="background-color: var(--light-dark)"] {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+            border-radius: 0.5rem;
+            border: 1px solid #E2E8F0;
+        }
+        
+        /* Specific styling for protection mode container in light mode */
+        .light-mode .protection-mode-container {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid #E2E8F0 !important;
+        }
+        
+        /* Font size classes */
+        .font-small {
+            font-size: 0.875rem;
+        }
+        
+        .font-medium {
+            font-size: 1rem;
+        }
+        
+        .font-large {
+            font-size: 1.125rem;
+        }
+        
+        /* Add more space and better styling for theme options */
+        .theme-option {
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+        }
+        
+        .theme-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .theme-preview {
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+        }
+        
+        /* Add animation to success message */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .success-message.show {
+            animation: fadeInDown 0.3s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1><i class="fas fa-shield-alt"></i> CyberShield</h1>
+                <p>Advanced DDoS Protection</p>
+            </div>
+            <div>
+                <a href="INDEX.HTML" class="btn" id="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Dashboard</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="nav">
+            <a href="INDEX.HTML" class="nav-link">Dashboard</a>
+            <a href="#" class="nav-link active">Settings</a>
+        </div>
+        
+        <h2>System Settings</h2>
+        <p class="text-muted">Configure system preferences and appearance</p>
+        
+        <div class="grid">
+            <!-- Appearance Settings -->
+            <div class="card">
+                <h3 class="card-title"><i class="fas fa-palette"></i> Appearance</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Theme</label>
+                    <div class="theme-grid">
+                        <div id="theme-cybershield" class="theme-option selected" onclick="previewTheme('cybershield')">
+                            <div class="theme-preview" style="background-color: var(--dark); position: relative; overflow: hidden;">
+                                <div class="theme-preview-graphics" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.2; background: linear-gradient(45deg, rgba(35, 200, 255, 0.3) 0%, transparent 70%);"></div>
+                                <span style="color: var(--primary); position: relative; z-index: 2; font-weight: bold;">CyberShield</span>
+                            </div>
+                            <div class="theme-select-indicator">
+                                <div class="theme-circle" style="background-color: var(--primary);"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="theme-midnight" class="theme-option" onclick="previewTheme('midnight')">
+                            <div class="theme-preview" style="background-color: #030B16; position: relative; overflow: hidden;">
+                                <div class="theme-preview-graphics" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.2; background: linear-gradient(45deg, rgba(123, 66, 246, 0.3) 0%, transparent 70%);"></div>
+                                <span style="color: #7B42F6; position: relative; z-index: 2; font-weight: bold;">Midnight</span>
+                            </div>
+                            <div class="theme-select-indicator">
+                                <div class="theme-circle" style="background-color: transparent;"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="theme-matrix" class="theme-option" onclick="previewTheme('matrix')">
+                            <div class="theme-preview" style="background-color: #001800; position: relative; overflow: hidden;">
+                                <div class="theme-preview-graphics matrix-animation" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.2;"></div>
+                                <span style="color: #00FF00; position: relative; z-index: 2; font-weight: bold; text-shadow: 0 0 5px #00FF00;">Matrix</span>
+                            </div>
+                            <div class="theme-select-indicator">
+                                <div class="theme-circle" style="background-color: transparent;"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="theme-crimson" class="theme-option" onclick="previewTheme('crimson')">
+                            <div class="theme-preview" style="background-color: #1A0505; position: relative; overflow: hidden;">
+                                <div class="theme-preview-graphics" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.2; background: linear-gradient(45deg, rgba(255, 0, 0, 0.3) 0%, transparent 70%);"></div>
+                                <span style="color: #FF5252; position: relative; z-index: 2; font-weight: bold; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);">Crimson</span>
+                            </div>
+                            <div class="theme-select-indicator">
+                                <div class="theme-circle" style="background-color: transparent;"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="theme-halloween" class="theme-option" onclick="previewTheme('halloween')">
+                            <div class="theme-preview" style="background-color: #0D0D14; position: relative; overflow: hidden;">
+                                <div class="theme-preview-graphics" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.3; background: radial-gradient(circle, rgba(255, 102, 0, 0.2) 0%, transparent 70%);"></div>
+                                <span style="color: #FF6600; position: relative; z-index: 2; font-weight: bold; text-shadow: 0 0 5px rgba(255, 102, 0, 0.5);">Halloween</span>
+                            </div>
+                            <div class="theme-select-indicator">
+                                <div class="theme-circle" style="background-color: transparent;"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="theme-bright" class="theme-option" onclick="previewTheme('bright')">
+                            <div class="theme-preview" style="background-color: #F0F4F8; position: relative; overflow: hidden;">
+                                <div class="theme-preview-graphics" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.2; background: linear-gradient(45deg, rgba(0, 102, 204, 0.1) 0%, transparent 70%);"></div>
+                                <span style="color: #0066CC; position: relative; z-index: 2; font-weight: bold;">Bright</span>
+                            </div>
+                            <div class="theme-select-indicator">
+                                <div class="theme-circle" style="background-color: transparent;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="toggle-container">
+                    <span>Dark Mode</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="dark-mode-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-container">
+                    <span>UI Density</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="ui-density-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-container">
+                    <span>Chart Animations</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="animations-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <!-- Font Size Selection -->
+                <div class="form-group">
+                    <label class="form-label">Font Size</label>
+                    <select class="form-control" id="font-size-selector">
+                        <option value="small">Small</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- System Configuration -->
+            <div class="card">
+                <h3 class="card-title"><i class="fas fa-wrench"></i> System Configuration</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Protection Mode</label>
+                    <div class="protection-mode-container" style="background-color: var(--light-dark); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <input type="radio" name="protection-mode" id="normal" checked>
+                            <label for="normal">Normal Protection</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <input type="radio" name="protection-mode" id="aggressive">
+                            <label for="aggressive">Aggressive Protection</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="radio" name="protection-mode" id="learning">
+                            <label for="learning">Learning Mode</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Traffic Scan Frequency</label>
+                    <input type="range" min="1" max="10" value="5" class="form-control" id="scan-frequency">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                        <span>Less Frequent</span>
+                        <span id="scan-frequency-value">5</span>
+                        <span>More Frequent</span>
+                    </div>
+                </div>
+                
+                <!-- Advanced Security Settings -->
+                <div class="form-group">
+                    <label class="form-label">Advanced Security Settings</label>
+                    <div class="toggle-container">
+                        <span>Rate Limiting</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="rate-limiting-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <span>IP Reputation Checking</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="ip-reputation-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <span>Anomaly Detection</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="anomaly-detection-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <span>Behavioral Analysis</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="behavioral-analysis-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Performance Settings -->
+                <div class="form-group">
+                    <label class="form-label">Performance Settings</label>
+                    
+                    <div class="toggle-container">
+                        <span>Resource Optimization</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="resource-optimization-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="toggle-container">
+                        <span>Background Processing</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="background-processing-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">CPU Usage Limit</label>
+                        <input type="range" min="10" max="100" value="80" class="form-control" id="cpu-limit">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                            <span>Lower</span>
+                            <span id="cpu-limit-value">80%</span>
+                            <span>Higher</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Logging Level</label>
+                    <select class="form-control" id="logging-level">
+                        <option value="error">Error Only</option>
+                        <option value="warning">Warning & Error</option>
+                        <option value="info" selected>Info & Above</option>
+                        <option value="debug">Debug (Verbose)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Notifications & Alerts -->
+            <div class="card">
+                <h3 class="card-title"><i class="fas fa-bell"></i> Notifications & Alerts</h3>
+                
+                <div class="toggle-container">
+                    <span>Email Notifications</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="email-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-container">
+                    <span>SMS Alerts</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="sms-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-container">
+                    <span>Desktop Notifications</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="desktop-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Recipients</label>
+                    <input type="email" class="form-control" id="email-recipients" placeholder="Enter email address">
+                    <small class="text-muted">Use comma to separate multiple emails</small>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 2rem 0;">
+            <button class="btn btn-primary" id="save-settings-btn">
+                <i class="fas fa-save"></i>
+                <span>Save Changes</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Success message -->
+    <div class="success-message" id="success-message">
+        <i class="fas fa-check-circle"></i>
+        <span>Settings saved successfully!</span>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved settings
+            loadSettings();
+            
+            // Theme selection
+            document.querySelectorAll('.theme-option').forEach(theme => {
+                theme.addEventListener('click', function() {
+                    const themeId = this.id.replace('theme-', '');
+                    previewTheme(themeId);
+                });
+            });
+            
+            // Update scan frequency value display
+            const scanFrequency = document.getElementById('scan-frequency');
+            const scanFrequencyValue = document.getElementById('scan-frequency-value');
+            scanFrequency.addEventListener('input', function() {
+                scanFrequencyValue.textContent = this.value;
+            });
+            
+            // Update CPU limit value display
+            const cpuLimit = document.getElementById('cpu-limit');
+            const cpuLimitValue = document.getElementById('cpu-limit-value');
+            cpuLimit.addEventListener('input', function() {
+                cpuLimitValue.textContent = this.value + '%';
+            });
+            
+            // Dark mode toggle
+            document.getElementById('dark-mode-toggle').addEventListener('change', function() {
+                if (this.checked) {
+                    document.body.classList.remove('light-mode');
+                } else {
+                    document.body.classList.add('light-mode');
+                }
+            });
+            
+            // Font size selector
+            document.getElementById('font-size-selector').addEventListener('change', function() {
+                document.body.classList.remove('font-small', 'font-medium', 'font-large');
+                document.body.classList.add(`font-${this.value}`);
+            });
+            
+            // Handle back button
+            document.getElementById('back-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                // Go back to main page
+                window.location.href = 'INDEX.HTML';
+            });
+            
+            // Save settings button
+            document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+        });
+        
+        // Theme definitions for live previews
+        const themes = {
+            cybershield: {
+                bgColor: '#0A1222',
+                primaryColor: '#23C8FF',
+                secondaryColor: '#FFA726',
+                tertiaryColor: '#FF4181',
+                textColor: '#E4E6F0'
+            },
+            midnight: {
+                bgColor: '#030B16',
+                primaryColor: '#7B42F6',
+                secondaryColor: '#00CCAA',
+                tertiaryColor: '#FF6B6B',
+                textColor: '#E9ECEF'
+            },
+            matrix: {
+                bgColor: '#001800',
+                primaryColor: '#00FF00',
+                secondaryColor: '#00DD00',
+                tertiaryColor: '#88FF88',
+                textColor: '#CCFFCC'
+            },
+            crimson: {
+                bgColor: '#1A0505',
+                primaryColor: '#FF5252',
+                secondaryColor: '#FF3C7A',
+                tertiaryColor: '#FF9C3C',
+                textColor: '#F5E0E0'
+            },
+            halloween: {
+                bgColor: '#0D0D14',
+                primaryColor: '#FF6600',
+                secondaryColor: '#8B00FF',
+                tertiaryColor: '#00FF00',
+                textColor: '#F9E0CC'
+            },
+            bright: {
+                bgColor: '#F0F4F8',
+                primaryColor: '#0066CC',
+                secondaryColor: '#FF6600',
+                tertiaryColor: '#CC00FF',
+                textColor: '#333333'
+            }
+        };
+
+        // Function to preview a theme
+        function previewTheme(themeName) {
+            // Add 'theme-' prefix if not present
+            const themeId = themeName.startsWith('theme-') ? themeName : `theme-${themeName}`;
+            
+            // Update theme selections
+            document.querySelectorAll('.theme-option').forEach(theme => {
+                theme.classList.remove('selected');
+                const circle = theme.querySelector('.theme-circle');
+                if (circle) {
+                    circle.style.backgroundColor = 'transparent';
+                }
+            });
+            
+            const selectedTheme = document.getElementById(themeId);
+            if (selectedTheme) {
+                selectedTheme.classList.add('selected');
+                const selectedCircle = selectedTheme.querySelector('.theme-circle');
+                if (selectedCircle) {
+                    selectedCircle.style.backgroundColor = 'var(--primary)';
+                }
+            }
+            
+            // Apply theme preview - use original themeName without prefix
+            const actualThemeName = themeId.replace('theme-', '');
+            const theme = themes[actualThemeName];
+            if (theme) {
+                document.documentElement.style.setProperty('--primary', theme.primaryColor);
+                document.documentElement.style.setProperty('--dark', theme.bgColor);
+                document.documentElement.style.setProperty('--secondary', theme.secondaryColor);
+                document.documentElement.style.setProperty('--tertiary', theme.tertiaryColor);
+                document.documentElement.style.setProperty('--text', theme.textColor);
+                
+                // Handle dark/light mode
+                if (actualThemeName === 'bright') {
+                    document.getElementById('dark-mode-toggle').checked = false;
+                    document.body.classList.add('light-mode');
+                } else {
+                    document.getElementById('dark-mode-toggle').checked = true;
+                    document.body.classList.remove('light-mode');
+                }
+            }
+        }
+
+        // Update saveSettings function to include all new options
+        function saveSettings() {
+            const selectedThemeId = document.querySelector('.theme-option.selected').id;
+            // Remove 'theme-' prefix for storage
+            const themeNameOnly = selectedThemeId.replace('theme-', '');
+            
+            const settings = {
+                theme: themeNameOnly,
+                darkMode: document.getElementById('dark-mode-toggle').checked,
+                uiDensity: document.getElementById('ui-density-toggle').checked,
+                chartAnimations: document.getElementById('animations-toggle').checked,
+                fontSize: document.getElementById('font-size-selector').value,
+                protectionMode: document.querySelector('input[name="protection-mode"]:checked').id,
+                scanFrequency: document.getElementById('scan-frequency').value,
+                loggingLevel: document.getElementById('logging-level').value,
+                emailNotifications: document.getElementById('email-toggle').checked,
+                smsAlerts: document.getElementById('sms-toggle').checked,
+                desktopNotifications: document.getElementById('desktop-toggle').checked,
+                emailRecipients: document.getElementById('email-recipients').value,
+                rateLimiting: document.getElementById('rate-limiting-toggle').checked,
+                ipReputation: document.getElementById('ip-reputation-toggle').checked,
+                anomalyDetection: document.getElementById('anomaly-detection-toggle').checked,
+                behavioralAnalysis: document.getElementById('behavioral-analysis-toggle').checked,
+                resourceOptimization: document.getElementById('resource-optimization-toggle').checked,
+                backgroundProcessing: document.getElementById('background-processing-toggle').checked,
+                cpuLimit: document.getElementById('cpu-limit').value
+            };
+            
+            localStorage.setItem('cybershield-settings', JSON.stringify(settings));
+            showSavedMessage();
+            
+            // Apply theme changes to the main page if possible
+            applyTheme(themeNameOnly, settings);
+        }
+
+        // Update loadSettings to handle all new options
+        function loadSettings() {
+            try {
+                const savedSettings = localStorage.getItem('cybershield-settings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    
+                    // Apply theme
+                    if (settings.theme) {
+                        // Make sure we're calling with the actual theme name, not the ID with 'theme-' prefix
+                        previewTheme(settings.theme);
+                    }
+                    
+                    // Apply dark mode
+                    if (settings.darkMode !== undefined) {
+                        document.getElementById('dark-mode-toggle').checked = settings.darkMode;
+                        if (!settings.darkMode) {
+                            document.body.classList.add('light-mode');
+                        } else {
+                            document.body.classList.remove('light-mode');
+                        }
+                    }
+                    
+                    // Apply UI density
+                    if (settings.uiDensity !== undefined) {
+                        document.getElementById('ui-density-toggle').checked = settings.uiDensity;
+                    }
+                    
+                    // Apply chart animations
+                    if (settings.chartAnimations !== undefined) {
+                        document.getElementById('animations-toggle').checked = settings.chartAnimations;
+                    }
+                    
+                    // Apply font size
+                    if (settings.fontSize) {
+                        document.getElementById('font-size-selector').value = settings.fontSize;
+                        document.body.classList.remove('font-small', 'font-medium', 'font-large');
+                        document.body.classList.add(`font-${settings.fontSize}`);
+                    }
+                    
+                    // Apply protection mode
+                    if (settings.protectionMode) {
+                        const modeRadio = document.getElementById(settings.protectionMode);
+                        if (modeRadio) {
+                            modeRadio.checked = true;
+                        }
+                    }
+                    
+                    // Apply scan frequency
+                    if (settings.scanFrequency) {
+                        const scanFrequency = document.getElementById('scan-frequency');
+                        scanFrequency.value = settings.scanFrequency;
+                        document.getElementById('scan-frequency-value').textContent = settings.scanFrequency;
+                    }
+                    
+                    // Apply logging level
+                    if (settings.loggingLevel) {
+                        document.getElementById('logging-level').value = settings.loggingLevel;
+                    }
+                    
+                    // Apply notification settings
+                    if (settings.emailNotifications !== undefined) {
+                        document.getElementById('email-toggle').checked = settings.emailNotifications;
+                    }
+                    
+                    if (settings.smsAlerts !== undefined) {
+                        document.getElementById('sms-toggle').checked = settings.smsAlerts;
+                    }
+                    
+                    if (settings.desktopNotifications !== undefined) {
+                        document.getElementById('desktop-toggle').checked = settings.desktopNotifications;
+                    }
+                    
+                    // Apply email recipients
+                    if (settings.emailRecipients) {
+                        document.getElementById('email-recipients').value = settings.emailRecipients;
+                    }
+                    
+                    // Apply advanced security settings
+                    if (settings.rateLimiting !== undefined) {
+                        document.getElementById('rate-limiting-toggle').checked = settings.rateLimiting;
+                    }
+                    
+                    if (settings.ipReputation !== undefined) {
+                        document.getElementById('ip-reputation-toggle').checked = settings.ipReputation;
+                    }
+                    
+                    if (settings.anomalyDetection !== undefined) {
+                        document.getElementById('anomaly-detection-toggle').checked = settings.anomalyDetection;
+                    }
+                    
+                    if (settings.behavioralAnalysis !== undefined) {
+                        document.getElementById('behavioral-analysis-toggle').checked = settings.behavioralAnalysis;
+                    }
+                    
+                    // Apply performance settings
+                    if (settings.resourceOptimization !== undefined) {
+                        document.getElementById('resource-optimization-toggle').checked = settings.resourceOptimization;
+                    }
+                    
+                    if (settings.backgroundProcessing !== undefined) {
+                        document.getElementById('background-processing-toggle').checked = settings.backgroundProcessing;
+                    }
+                    
+                    if (settings.cpuLimit) {
+                        const cpuLimit = document.getElementById('cpu-limit');
+                        cpuLimit.value = settings.cpuLimit;
+                        document.getElementById('cpu-limit-value').textContent = settings.cpuLimit + '%';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+        
+        // Show saved message
+        function showSavedMessage() {
+            const message = document.getElementById('success-message');
+            message.classList.add('show');
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Apply theme changes in real-time
+        function applyTheme(themeId, settings) {
+            // Get the theme settings - remove 'theme-' prefix if present
+            const themeName = themeId.replace('theme-', '');
+            const theme = themes[themeName];
+            
+            if (theme) {
+                // Apply to current page
+                document.documentElement.style.setProperty('--primary', theme.primaryColor);
+                document.documentElement.style.setProperty('--dark', theme.bgColor);
+                document.documentElement.style.setProperty('--secondary', theme.secondaryColor);
+                document.documentElement.style.setProperty('--tertiary', theme.tertiaryColor);
+                document.documentElement.style.setProperty('--text', theme.textColor);
+                
+                // Create a shared theme CSS file that both pages can load
+                const themeCSS = `
+                :root {
+                    --primary: ${theme.primaryColor} !important;
+                    --primary-dark: ${shadeColor(theme.primaryColor, -20)} !important;
+                    --secondary: ${theme.secondaryColor} !important;
+                    --tertiary: ${theme.tertiaryColor} !important;
+                    --dark: ${theme.bgColor} !important;
+                    --darker: ${shadeColor(theme.bgColor, -10)} !important;
+                    --light-dark: ${shadeColor(theme.bgColor, 10)} !important;
+                    --border: ${shadeColor(theme.bgColor, 20)} !important;
+                    --text: ${theme.textColor} !important;
+                    --text-muted: ${shadeColor(theme.textColor, -30)} !important;
+                }
+                
+                ${themeName === 'bright' ? `
+                body.theme-bright {
+                    background-color: var(--darker) !important;
+                    color: var(--text) !important;
+                }
+                body.theme-bright .neo-card {
+                    background-color: var(--dark) !important;
+                    border: 1px solid var(--border) !important;
+                }
+                body.theme-bright .neo-sidebar {
+                    background-color: var(--dark) !important;
+                    border-right: 1px solid var(--border) !important;
+                }
+                body.theme-bright .neo-sidebar-link {
+                    color: var(--text-muted) !important;
+                }
+                body.theme-bright .neo-sidebar-link:hover {
+                    color: var(--text) !important;
+                }
+                body.theme-bright .neo-sidebar-link.active {
+                    color: var(--primary) !important;
+                }
+                
+                /* Radio buttons in bright mode */
+                body.theme-bright input[type="radio"],
+                .light-mode input[type="radio"] {
+                    appearance: none !important;
+                    -webkit-appearance: none !important;
+                    width: 16px !important;
+                    height: 16px !important;
+                    border: 2px solid var(--border) !important;
+                    border-radius: 50% !important;
+                    outline: none !important;
+                    cursor: pointer !important;
+                    position: relative !important;
+                    vertical-align: middle !important;
+                    margin-right: 8px !important;
+                    background-color: white !important;
+                }
+                
+                body.theme-bright input[type="radio"]:checked,
+                .light-mode input[type="radio"]:checked {
+                    border-color: var(--primary) !important;
+                }
+                
+                body.theme-bright input[type="radio"]:checked:before,
+                .light-mode input[type="radio"]:checked:before {
+                    content: "" !important;
+                    position: absolute !important;
+                    width: 8px !important;
+                    height: 8px !important;
+                    background-color: var(--primary) !important;
+                    border-radius: 50% !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                }
+                
+                body.theme-bright input[type="radio"] + label,
+                .light-mode input[type="radio"] + label {
+                    color: var(--text) !important;
+                    cursor: pointer !important;
+                    font-size: 14px !important;
+                    vertical-align: middle !important;
+                }
+                
+                /* Radio container styling */
+                body.theme-bright div[style*="background-color: var(--light-dark)"],
+                .light-mode div[style*="background-color: var(--light-dark)"] {
+                    background-color: rgba(0, 0, 0, 0.05) !important;
+                    border-radius: 0.5rem !important;
+                    border: 1px solid var(--border) !important;
+                }
+                
+                /* Specific styling for protection mode container */
+                body.theme-bright .protection-mode-container,
+                .light-mode .protection-mode-container {
+                    background-color: rgba(0, 0, 0, 0.05) !important;
+                    border: 1px solid var(--border) !important;
+                }
+                ` : ''}
+                `;
+                
+                // Store the theme CSS in localStorage for the dashboard to access
+                localStorage.setItem('cybershield-theme-css', themeCSS);
+                
+                // Store last theme update timestamp to trigger reload on dashboard
+                localStorage.setItem('cybershield-theme-updated', Date.now().toString());
+                
+                // Handle dark/light mode
+                if (themeName === 'bright') {
+                    document.getElementById('dark-mode-toggle').checked = false;
+                    document.body.classList.add('light-mode');
+                } else {
+                    document.getElementById('dark-mode-toggle').checked = true;
+                    document.body.classList.remove('light-mode');
+                }
+                
+                // Update any active iframes or parent windows if in an iframe
+                try {
+                    if (window.parent && window.parent !== window) {
+                        // If settings is in iframe, notify parent
+                        window.parent.postMessage({
+                            type: 'theme-changed',
+                            timestamp: Date.now()
+                        }, '*');
+                    }
+                } catch (e) {
+                    console.error('Error notifying parent window:', e);
+                }
+            }
+            
+            // Save settings to localStorage with theme name without prefix
+            if (settings) {
+                settings.theme = themeName;
+                localStorage.setItem('cybershield-settings', JSON.stringify(settings));
+            }
+        }
+        
+        // Helper function to darken or lighten a color
+        function shadeColor(color, percent) {
+            let R = parseInt(color.substring(1,3),16);
+            let G = parseInt(color.substring(3,5),16);
+            let B = parseInt(color.substring(5,7),16);
+
+            R = parseInt(R * (100 + percent) / 100);
+            G = parseInt(G * (100 + percent) / 100);
+            B = parseInt(B * (100 + percent) / 100);
+
+            R = (R<255)?R:255;  
+            G = (G<255)?G:255;  
+            B = (B<255)?B:255;  
+
+            R = Math.max(0, R);
+            G = Math.max(0, G);
+            B = Math.max(0, B);
+
+            const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+            const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+            const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+
+            return "#"+RR+GG+BB;
+        }
+    </script>
+</body>
+</html> 

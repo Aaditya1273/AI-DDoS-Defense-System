@@ -154,7 +154,14 @@ class DDoSDetector:
         )
             
     def process_packet(self, packet):
-        features = self.extract_features(packet)
+        # Determine if we have a raw packet or a dictionary
+        if isinstance(packet, dict):
+            # We already have the extracted features
+            features = packet
+        else:
+            # Extract features from raw packet
+            features = self.extract_features(packet)
+        
         if features:
             self.packet_buffer.append(features)
         
@@ -190,7 +197,7 @@ class DDoSDetector:
             if len(self.packet_buffer) >= self.window_size:
                 prediction = self.predict_attack(self.packet_buffer)
                 if prediction > self.threshold:
-                    self.handle_attack(packet)
+                    self.handle_attack(features)
                 self.packet_buffer = self.packet_buffer[-50:]  # Keep last 50 packets
             
     def extract_features(self, packet):
@@ -294,7 +301,7 @@ class DDoSDetector:
         # Store attack information
         attack_data = {
             'timestamp': time.time(),
-            'source_ip': packet['src_ip'],
+            'source_ip': packet.get('src_ip', '127.0.0.1'),  # Use get with default value to prevent KeyError
             'protocol': packet.get('protocol', 0),
             'packet_size': packet.get('packet_size', 0),
             'type': self.determine_attack_type(packet)
@@ -321,17 +328,18 @@ class DDoSDetector:
         logger.warning(f"Attack detected: {attack_data}")
         
         # Add to blocked IPs and suspicious IPs
-        traffic_stats['blocked_ips'].add(packet['src_ip'])
-        traffic_stats['suspicious_ips'].add(packet['src_ip'])
+        if 'src_ip' in packet:
+            traffic_stats['blocked_ips'].add(packet['src_ip'])
+            traffic_stats['suspicious_ips'].add(packet['src_ip'])
         
         # Update global statistics for protocol distribution
         protocol_num = packet.get('protocol', 0)
         if protocol_num == 6:  # TCP
-            traffic_stats['tcp_attacks'] = traffic_stats.get('tcp_attacks', 0) + 1
+            traffic_stats['tcp_attacks'] += 1
         elif protocol_num == 17:  # UDP
-            traffic_stats['udp_attacks'] = traffic_stats.get('udp_attacks', 0) + 1
+            traffic_stats['udp_attacks'] += 1
         elif protocol_num == 1:  # ICMP
-            traffic_stats['icmp_attacks'] = traffic_stats.get('icmp_attacks', 0) + 1
+            traffic_stats['icmp_attacks'] += 1
         
         # Update firewall rules counter
         traffic_stats['firewall_rules'] = len(traffic_stats['blocked_ips'])
@@ -457,6 +465,11 @@ def generate_test_packet():
 
 def reset_traffic_stats():
     """Reset traffic statistics counters"""
+    # Save the total packets to preserve them
+    preserved_total = traffic_stats['total_packets']
+    preserved_bytes = traffic_stats['total_bytes']
+    
+    # Reset individual counters
     traffic_stats['syn_packets'] = 0
     traffic_stats['udp_packets'] = 0
     traffic_stats['icmp_packets'] = 0
@@ -464,8 +477,15 @@ def reset_traffic_stats():
     traffic_stats['suspicious_ips'] = set()
     traffic_stats['packets_per_second'] = 0
     traffic_stats['bytes_per_second'] = 0
-    # Don't reset total packets and total bytes - just the current rates and protocol-specific counts
-    logger.info("Traffic statistics reset")
+    traffic_stats['tcp_attacks'] = 0
+    traffic_stats['udp_attacks'] = 0
+    traffic_stats['icmp_attacks'] = 0
+    
+    # Restore the preserved values
+    traffic_stats['total_packets'] = preserved_total
+    traffic_stats['total_bytes'] = preserved_bytes
+    
+    logger.info(f"Traffic statistics reset. Preserved total packets: {preserved_total}")
 
 def flood_test(target_ip, protocol, count=1000, interval=0.001):
     """Run a controlled flood test to the specified IP"""
@@ -479,9 +499,56 @@ def flood_test(target_ip, protocol, count=1000, interval=0.001):
     
     proto_num = protocols.get(protocol.upper(), 6)
     
+    # Reset only the specific protocol counters, not the attack counters
+    if proto_num == 6:  # TCP
+        logger.info("Resetting TCP/SYN counters")
+        traffic_stats['syn_packets'] = 0
+        # DO NOT reset tcp_attacks counter to ensure graph rises
+    elif proto_num == 17:  # UDP
+        logger.info("Resetting UDP counters")
+        traffic_stats['udp_packets'] = 0
+        # DO NOT reset udp_attacks counter to ensure graph rises
+    elif proto_num == 1:  # ICMP
+        logger.info("Resetting ICMP counters")
+        traffic_stats['icmp_packets'] = 0 
+        # DO NOT reset icmp_attacks counter to ensure graph rises
+    
+    # Save starting packet count for accurate reporting
+    starting_total = traffic_stats['total_packets']
+    logger.info(f"Starting total packet count: {starting_total}")
+
+    # Send update about starting the test
+    try:
+        socketio.emit('attack_detected', {
+            'timestamp': time.time(),
+            'source_ip': target_ip,
+            'type': f"{protocol} Flood Test"
+        })
+    except Exception as e:
+        logger.error(f"Error sending start notification: {e}")
+        
+    # Track last update time to avoid overloading with socket events
+    last_update = time.time()
+    last_packet_count = 0
+    update_interval = 0.1  # Send updates every 100ms
+    
+    # Try to send an initial update with the zeroed counters
+    try:
+        socketio.emit('traffic_stats', {
+            'total_packets': traffic_stats['total_packets'],
+            'syn_packets': 0 if proto_num == 6 else traffic_stats['syn_packets'],
+            'udp_packets': 0 if proto_num == 17 else traffic_stats['udp_packets'],
+            'icmp_packets': 0 if proto_num == 1 else traffic_stats['icmp_packets'],
+            'packets_per_second': 0,
+            'bytes_per_second': 0,
+            'timestamp': time.time()
+        })
+    except Exception as e:
+        logger.error(f"Error sending initial reset notification: {e}")
+    
     for i in range(count):
         if i % 100 == 0:
-            logger.info(f"Sent {i} test packets...")
+            logger.info(f"Sent {i} test packets... Total now: {traffic_stats['total_packets']}")
         
         # Create appropriate packet based on protocol
         if proto_num == 6:  # TCP
@@ -491,30 +558,139 @@ def flood_test(target_ip, protocol, count=1000, interval=0.001):
         else:  # ICMP
             packet = IP(dst=target_ip)/ICMP()
         
-        # Process packet in detector
-        detector.process_packet(packet)
+        # Extract features manually instead of trying to process the raw packet
+        packet_dict = {
+            'src_ip': packet[IP].src,
+            'dst_ip': packet[IP].dst,
+            'protocol': proto_num,
+            'packet_size': len(packet)
+        }
         
-        # Update counters
+        # Add protocol-specific information
+        if proto_num == 6:  # TCP
+            packet_dict['src_port'] = packet[TCP].sport
+            packet_dict['dst_port'] = packet[TCP].dport
+            packet_dict['flags'] = 'S'  # SYN flag for TCP
+        elif proto_num == 17:  # UDP
+            packet_dict['src_port'] = packet[UDP].sport
+            packet_dict['dst_port'] = packet[UDP].dport
+        
+        # Process the packet dictionary
+        detector.packet_buffer.append(packet_dict)
+        
+        # Manually increment attack counters
+        if proto_num == 6:
+            traffic_stats['tcp_attacks'] += 1
+        elif proto_num == 17:
+            traffic_stats['udp_attacks'] += 1
+        elif proto_num == 1:
+            traffic_stats['icmp_attacks'] += 1
+            
+        # Update counters - explicitly increment regardless of protocol
         traffic_stats['total_packets'] += 1
         packet_size = len(packet)
         traffic_stats['total_bytes'] += packet_size
         
-        if proto_num == 6:
+        # Protocol-specific counters
+        if proto_num == 6:  # TCP
             traffic_stats['syn_packets'] += 1
-        elif proto_num == 17:
+            # Direct debug output to verify counting
+            if i % 100 == 0:
+                logger.info(f"SYN packets now: {traffic_stats['syn_packets']}, TCP attacks: {traffic_stats['tcp_attacks']}, Total packets: {traffic_stats['total_packets']}")
+        elif proto_num == 17:  # UDP
             traffic_stats['udp_packets'] += 1
-        elif proto_num == 1:
+        elif proto_num == 1:  # ICMP
             traffic_stats['icmp_packets'] += 1
+        
+        # Send UI updates periodically during the test
+        current_time = time.time()
+        if current_time - last_update > update_interval:
+            try:
+                # Update traffic rates
+                update_traffic_rates()
+                
+                # Prepare traffic stats for the UI
+                protocol_distribution = {
+                    'tcp': traffic_stats['tcp_attacks'],
+                    'udp': traffic_stats['udp_attacks'],
+                    'icmp': traffic_stats['icmp_attacks']
+                }
+                
+                # Calculate packets processed since last update
+                packets_since_update = i - last_packet_count
+                elapsed_time = current_time - last_update
+                packets_per_second = int(packets_since_update / elapsed_time) if elapsed_time > 0 else 100
+                
+                # Debug output
+                if proto_num == 6:
+                    logger.info(f"Updating UI - SYN packets: {traffic_stats['syn_packets']}, TCP attacks: {traffic_stats['tcp_attacks']}, Total: {traffic_stats['total_packets']}")
+                
+                # Construct traffic stats for UI update as integers (not strings) to prevent UI limitations
+                traffic_ui_stats = {
+                    'total_packets': int(traffic_stats['total_packets']),
+                    'syn_packets': int(traffic_stats['syn_packets']),
+                    'udp_packets': int(traffic_stats['udp_packets']),
+                    'icmp_packets': int(traffic_stats['icmp_packets']),
+                    'http_requests': int(traffic_stats['http_requests']),
+                    'suspicious_ips': len(traffic_stats['suspicious_ips']),
+                    'blocked_ips': len(traffic_stats['blocked_ips']),
+                    'packets_per_second': packets_per_second,
+                    'bytes_per_second': packets_per_second * packet_size,
+                    'protocol_distribution': protocol_distribution,
+                    'timestamp': time.time()
+                }
+                
+                # Send update to UI
+                socketio.emit('traffic_stats', traffic_ui_stats)
+                
+                last_update = current_time
+                last_packet_count = i
+            except Exception as e:
+                logger.error(f"Error sending update during flood test: {e}")
         
         time.sleep(interval)
     
+    final_total = traffic_stats['total_packets']
+    packets_added = final_total - starting_total
     logger.info(f"Flood test completed: {count} packets sent to {target_ip}")
+    logger.info(f"Starting total: {starting_total}, Final total: {final_total}, Added: {packets_added}")
+    
+    # Send final update
+    try:
+        # Calculate final stats
+        protocol_distribution = {
+            'tcp': traffic_stats['tcp_attacks'],
+            'udp': traffic_stats['udp_attacks'],
+            'icmp': traffic_stats['icmp_attacks']
+        }
+        
+        # Construct final stats
+        final_stats = {
+            'total_packets': traffic_stats['total_packets'],
+            'syn_packets': traffic_stats['syn_packets'],
+            'udp_packets': traffic_stats['udp_packets'],
+            'icmp_packets': traffic_stats['icmp_packets'],
+            'packets_per_second': 0,  # Test is complete
+            'bytes_per_second': 0,    # Test is complete
+            'protocol_distribution': protocol_distribution,
+            'timestamp': time.time()
+        }
+        
+        # Log final stats to verify
+        logger.info(f"Final SYN packet count: {traffic_stats['syn_packets']}")
+        logger.info(f"Final TCP attack count: {traffic_stats['tcp_attacks']}")
+        logger.info(f"Final total packet count: {traffic_stats['total_packets']}")
+        
+        # Send final update
+        socketio.emit('traffic_stats', final_stats)
+    except Exception as e:
+        logger.error(f"Error sending final update: {e}")
     
     # Wait a moment before resetting stats
     time.sleep(2)
     
-    # Reset protocol-specific counters when flood test completes
-    reset_traffic_stats()
+    # Don't reset counters immediately - let them display for a while
+    # reset_traffic_stats() - commented out to keep the counts visible
     
     return {"status": "completed", "packets_sent": count, "target": target_ip, "protocol": protocol}
 
@@ -859,21 +1035,22 @@ def get_stats():
         'icmp': traffic_stats.get('icmp_attacks', 0) or default_protocol_dist['icmp']
     }
     
+    # Ensure all counts are returned as integers to prevent UI limitations
     return jsonify({
-        'total_packets': traffic_stats['total_packets'],
-        'syn_packets': traffic_stats['syn_packets'],
-        'udp_packets': traffic_stats['udp_packets'],
-        'icmp_packets': traffic_stats['icmp_packets'],
-        'http_requests': traffic_stats['http_requests'],
+        'total_packets': int(traffic_stats['total_packets']),
+        'syn_packets': int(traffic_stats['syn_packets']),
+        'udp_packets': int(traffic_stats['udp_packets']),
+        'icmp_packets': int(traffic_stats['icmp_packets']),
+        'http_requests': int(traffic_stats['http_requests']),
         'suspicious_ips': len(traffic_stats['suspicious_ips']),
         'blocked_ips': len(traffic_stats['blocked_ips']),
-        'packets_per_second': max(1, traffic_stats['packets_per_second']),  # Ensure at least 1 pps for UI
-        'bytes_per_second': max(100, traffic_stats['bytes_per_second']),    # Ensure some traffic for UI
+        'packets_per_second': max(1, int(traffic_stats['packets_per_second'])),  # Ensure at least 1 pps for UI
+        'bytes_per_second': max(100, int(traffic_stats['bytes_per_second'])),    # Ensure some traffic for UI
         'protocol_distribution': protocol_distribution,
         'top_source_ips': top_ips,
         'attack_types': attack_types,
-        'firewall_rules': traffic_stats.get('firewall_rules', 0),
-        'mitigation_effectiveness': traffic_stats.get('mitigation_effectiveness', 85),
+        'firewall_rules': int(traffic_stats.get('firewall_rules', 0)),
+        'mitigation_effectiveness': int(traffic_stats.get('mitigation_effectiveness', 85)),
         'system': {
             'cpu': calibrated_cpu,
             'memory': psutil.virtual_memory().percent,

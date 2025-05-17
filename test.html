@@ -1,11 +1,210 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Test Page</title>
+    <title>DDoS Test Page</title>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1e293b;
+            color: white;
+        }
+        .card {
+            background-color: #111a2c;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #23c8ff;
+        }
+        button {
+            background-color: #23c8ff;
+            color: #111a2c;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #1ba8e0;
+        }
+        pre {
+            background-color: #0a0e1a;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .count {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .log-area {
+            height: 200px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
-    <h1>DDoS Detection System</h1>
-    <p>This is a test page to verify server functionality.</p>
+    <h1>DDoS Test Page</h1>
+    
+    <div class="card">
+        <h2>Packet Counters</h2>
+        <div>
+            <div>Total Packets: <span id="total-packets" class="count">0</span></div>
+            <div>SYN Packets: <span id="syn-packets" class="count">0</span></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Controls</h2>
+        <button id="run-test">Run TCP Flood Test (1000 packets)</button>
+        <button id="run-test-10k">Run TCP Flood Test (10000 packets)</button>
+        <button id="reset">Reset Counters</button>
+    </div>
+    
+    <div class="card">
+        <h2>Event Log</h2>
+        <div id="log" class="log-area"></div>
+    </div>
+    
+    <script>
+        // Connect to the Socket.IO server
+        const socket = io.connect('http://localhost:5000');
+        
+        // DOM elements
+        const totalPacketsEl = document.getElementById('total-packets');
+        const synPacketsEl = document.getElementById('syn-packets');
+        const logEl = document.getElementById('log');
+        const runTestBtn = document.getElementById('run-test');
+        const runTest10kBtn = document.getElementById('run-test-10k');
+        const resetBtn = document.getElementById('reset');
+        
+        // Add log message
+        function log(message) {
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString();
+            logEl.innerHTML = `<div>[${timestamp}] ${message}</div>` + logEl.innerHTML;
+        }
+        
+        // Socket.IO event handlers
+        socket.on('connect', () => {
+            log('Connected to server');
+        });
+        
+        socket.on('disconnect', () => {
+            log('Disconnected from server');
+        });
+        
+        socket.on('traffic_stats', (data) => {
+            const totalPackets = data.total_packets || 0;
+            const synPackets = data.syn_packets || 0;
+            
+            log(`Received traffic stats: Total=${totalPackets}, SYN=${synPackets}`);
+            
+            if (synPackets > 99) {
+                log(`IMPORTANT: SYN packet count has exceeded 99: ${synPackets}`);
+            }
+            
+            if (totalPackets > 99) {
+                log(`IMPORTANT: Total packet count has exceeded 99: ${totalPackets}`);
+            }
+            
+            // Update UI without any formatting that might hide actual values
+            totalPacketsEl.textContent = totalPackets;
+            synPacketsEl.textContent = synPackets;
+        });
+        
+        socket.on('attack_detected', (data) => {
+            log(`Attack detected: ${data.type} from ${data.source_ip}`);
+        });
+        
+        socket.on('force_refresh', (data) => {
+            log('Forced refresh received');
+            fetchStats();
+        });
+        
+        // Button event handlers
+        runTestBtn.addEventListener('click', async () => {
+            log('Starting flood test (1000 packets)...');
+            try {
+                const response = await fetch('http://localhost:5000/api/flood_test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        target_ip: '127.0.0.1',
+                        protocol: 'TCP',
+                        count: 1000,
+                        interval: 0.001
+                    })
+                });
+                const data = await response.json();
+                log(`Test started: ${data.message}`);
+            } catch (e) {
+                log(`Error starting test: ${e.message}`);
+            }
+        });
+        
+        runTest10kBtn.addEventListener('click', async () => {
+            log('Starting flood test (10000 packets)...');
+            try {
+                const response = await fetch('http://localhost:5000/api/flood_test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        target_ip: '127.0.0.1',
+                        protocol: 'TCP',
+                        count: 10000,
+                        interval: 0.001
+                    })
+                });
+                const data = await response.json();
+                log(`Test started: ${data.message}`);
+            } catch (e) {
+                log(`Error starting test: ${e.message}`);
+            }
+        });
+        
+        resetBtn.addEventListener('click', async () => {
+            log('Resetting counters...');
+            try {
+                const response = await fetch('http://localhost:5000/api/reset', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                log(`Reset: ${data.message}`);
+                fetchStats();
+            } catch (e) {
+                log(`Error resetting: ${e.message}`);
+            }
+        });
+        
+        // Fetch stats from server
+        async function fetchStats() {
+            try {
+                const response = await fetch('http://localhost:5000/api/stats');
+                const data = await response.json();
+                totalPacketsEl.textContent = data.total_packets;
+                synPacketsEl.textContent = data.syn_packets;
+                log('Stats updated from server');
+            } catch (e) {
+                log(`Error fetching stats: ${e.message}`);
+            }
+        }
+        
+        // Initial setup
+        fetchStats();
+        log('Test page initialized');
+    </script>
 </body>
 </html> 

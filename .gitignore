@@ -101,6 +101,65 @@ coverage.xml
 node_modules/
 package-lock.json
 
+# JavaScript/Web specific
+bower_components/
+.sass-cache/
+.next/
+out/
+.nuxt/
+web_modules/
+flow-typed/
+*.min.js
+*.min.css
+dist/
+coverage/
+.parcel-cache/
+.cache/
+.rollup.cache/
+.webpack/
+storybook-static/
+
+# Network monitoring tools
+*.jtl
+*.hprof
+*.jfr
+tcpdump/
+wireshark/
+*.cdmproj
+*.cdm
+*.dump
+network_traces/
+netflow/
+sflow/
+*.wpr
+*.wpre
+*.wpa
+
+# Real-time visualization data
+charts_data/
+temp_visualizations/
+dashboard_cache/
+visualization_exports/
+
+# Docker and container-related
+.docker/
+.dockerignore
+docker-compose.override.yml
+docker-compose.*.yml
+docker/data/
+*.dockerfile
+*.containerfile
+
+# Build systems
+.gradle/
+.maven/
+target/
+bin/
+bazel-*
+cmake-build-*/
+.make/
+BUILD_ERROR.log
+
 # Security (prevent accidental commit of sensitive data)
 *.key
 *.pem
@@ -115,4 +174,32 @@ package-lock.json
 .env.local
 .env.development.local
 .env.test.local
-.env.production.local 
+.env.production.local
+*.pub
+*.gpg
+.gnupg/
+*.asc
+*.enc
+*.sig
+*.pgp
+oauth*.json
+firebase*.json
+gcp*.json
+aws*.json
+azure*.json
+
+# Config backups and local overrides
+*.conf.bak
+*.config.local
+config.local.*
+settings.local.*
+*.override.*
+local.*
+override.*
+
+# Browser automation
+.seleniumrc
+.webdriverrc
+.browserrc
+*.chromedriver
+*.geckodriver 

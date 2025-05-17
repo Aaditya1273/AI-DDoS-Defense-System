@@ -9,6 +9,157 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
     <script src="settings.js" defer></script>
+    
+    <!-- Dynamic Theme Styles -->
+    <style id="dynamic-theme-styles">
+        /* Default theme styles will be replaced with saved theme */
+    </style>
+    
+    <script>
+        // Last theme update check timestamp
+        let lastThemeCheck = 0;
+        
+        // Apply saved theme CSS immediately to prevent FOUC (Flash of Unstyled Content)
+        document.addEventListener('DOMContentLoaded', function() {
+            applyThemeFromLocalStorage();
+            
+            // Check for theme updates periodically
+            setInterval(checkForThemeUpdates, 1000);
+            
+            // Listen for messages from settings page iframe if applicable
+            window.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'theme-changed') {
+                    applyThemeFromLocalStorage();
+                }
+            });
+        });
+        
+        // Also apply theme immediately (before DOM is fully loaded)
+        applyThemeFromLocalStorage();
+        
+        // Function to check if theme has been updated
+        function checkForThemeUpdates() {
+            const themeUpdated = localStorage.getItem('cybershield-theme-updated');
+            if (themeUpdated && parseInt(themeUpdated) > lastThemeCheck) {
+                lastThemeCheck = parseInt(themeUpdated);
+                applyThemeFromLocalStorage();
+            }
+        }
+        
+        function applyThemeFromLocalStorage() {
+            const themeCSS = localStorage.getItem('cybershield-theme-css');
+            const themeStyleElement = document.getElementById('dynamic-theme-styles');
+            
+            if (themeCSS && themeStyleElement) {
+                themeStyleElement.textContent = themeCSS;
+                
+                // Check if we need to apply bright theme adjustments to body
+                const settings = JSON.parse(localStorage.getItem('cybershield-settings') || '{}');
+                if (settings.theme === 'bright') {
+                    document.body.classList.add('theme-bright', 'light-mode');
+                } else {
+                    document.body.classList.remove('theme-bright', 'light-mode');
+                }
+                
+                // Apply theme directly to document variables as backup
+                const themeName = settings.theme || 'cybershield';
+                if (themeName) {
+                    // Apply theme variables based on the theme name (fallback)
+                    applyThemeVariables(themeName);
+                }
+                
+                console.log('Theme applied:', settings.theme);
+            }
+        }
+        
+        // Fallback function to apply theme variables directly
+        function applyThemeVariables(themeName) {
+            const rootStyle = document.documentElement.style;
+            
+            // Reset to defaults first
+            rootStyle.removeProperty('--primary');
+            rootStyle.removeProperty('--primary-dark');
+            rootStyle.removeProperty('--secondary');
+            rootStyle.removeProperty('--tertiary');
+            rootStyle.removeProperty('--dark');
+            rootStyle.removeProperty('--darker');
+            rootStyle.removeProperty('--light-dark');
+            rootStyle.removeProperty('--border');
+            rootStyle.removeProperty('--text');
+            rootStyle.removeProperty('--text-muted');
+            
+            // Apply theme based on name
+            switch(themeName) {
+                case 'midnight':
+                    rootStyle.setProperty('--primary', '#7B42F6');
+                    rootStyle.setProperty('--primary-dark', '#6535D4');
+                    rootStyle.setProperty('--dark', '#0D1324');
+                    rootStyle.setProperty('--darker', '#030B16');
+                    rootStyle.setProperty('--light-dark', '#162039');
+                    rootStyle.setProperty('--border', '#253354');
+                    rootStyle.setProperty('--tertiary', '#FF3C7A');
+                    break;
+                case 'matrix':
+                    rootStyle.setProperty('--primary', '#00FF00');
+                    rootStyle.setProperty('--primary-dark', '#00CC00');
+                    rootStyle.setProperty('--dark', '#001800');
+                    rootStyle.setProperty('--darker', '#001100');
+                    rootStyle.setProperty('--light-dark', '#002200');
+                    rootStyle.setProperty('--border', '#003300');
+                    rootStyle.setProperty('--success', '#00FFAA');
+                    rootStyle.setProperty('--secondary', '#AAFF00');
+                    rootStyle.setProperty('--tertiary', '#00FFFF');
+                    break;
+                case 'crimson':
+                    rootStyle.setProperty('--primary', '#FF5252');
+                    rootStyle.setProperty('--primary-dark', '#D43535');
+                    rootStyle.setProperty('--dark', '#1A0D0D');
+                    rootStyle.setProperty('--darker', '#1A0505');
+                    rootStyle.setProperty('--light-dark', '#2B1616');
+                    rootStyle.setProperty('--border', '#3B2121');
+                    rootStyle.setProperty('--tertiary', '#FF9C3C');
+                    rootStyle.setProperty('--secondary', '#FF3C7A');
+                    break;
+                case 'halloween':
+                    rootStyle.setProperty('--primary', '#FF6600');
+                    rootStyle.setProperty('--primary-dark', '#CC5200');
+                    rootStyle.setProperty('--dark', '#0D0D14');
+                    rootStyle.setProperty('--darker', '#07070D');
+                    rootStyle.setProperty('--light-dark', '#13131F');
+                    rootStyle.setProperty('--border', '#1E1E2F');
+                    rootStyle.setProperty('--tertiary', '#00FF00');
+                    rootStyle.setProperty('--secondary', '#8B00FF');
+                    rootStyle.setProperty('--success', '#66FF66');
+                    rootStyle.setProperty('--warning', '#FFCC00');
+                    break;
+                case 'bright':
+                    rootStyle.setProperty('--primary', '#0066CC');
+                    rootStyle.setProperty('--primary-dark', '#0055AA');
+                    rootStyle.setProperty('--dark', '#FFFFFF');
+                    rootStyle.setProperty('--darker', '#F0F4F8');
+                    rootStyle.setProperty('--light-dark', '#E5EAEF');
+                    rootStyle.setProperty('--border', '#D0D8E0');
+                    rootStyle.setProperty('--text', '#333333');
+                    rootStyle.setProperty('--text-muted', '#6D7A8C');
+                    rootStyle.setProperty('--tertiary', '#CC00FF');
+                    rootStyle.setProperty('--secondary', '#FF6600');
+                    break;
+                // Default cybershield theme
+                default:
+                    rootStyle.setProperty('--primary', '#23C8FF');
+                    rootStyle.setProperty('--primary-dark', '#15A1D9');
+                    rootStyle.setProperty('--secondary', '#FFB629');
+                    rootStyle.setProperty('--tertiary', '#FF4081');
+                    rootStyle.setProperty('--dark', '#111A2C');
+                    rootStyle.setProperty('--darker', '#0A0E1A');
+                    rootStyle.setProperty('--light-dark', '#1E293B');
+                    rootStyle.setProperty('--border', '#2B3A55');
+                    rootStyle.setProperty('--text', '#E2E8F0');
+                    rootStyle.setProperty('--text-muted', '#94A3B8');
+            }
+        }
+    </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -200,6 +351,110 @@
         
         .neo-main-expanded {
             margin-left: 0;
+        }
+        
+        .neo-main-hidden {
+            margin-left: 0;
+        }
+        
+        /* Bright Theme Overrides */
+        body.theme-bright {
+            background-color: var(--darker);
+            color: var(--text);
+        }
+        
+        body.theme-bright .neo-card {
+            background-color: var(--dark);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        body.theme-bright .neo-sidebar {
+            background-color: var(--dark);
+            border-right: 1px solid var(--border);
+        }
+        
+        body.theme-bright .neo-sidebar-link {
+            color: var(--text-muted);
+        }
+        
+        body.theme-bright .neo-sidebar-link:hover {
+            color: var(--text);
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        body.theme-bright .neo-sidebar-link.active {
+            color: var(--primary);
+            background-color: rgba(0, 102, 204, 0.1);
+        }
+        
+        body.theme-bright .neo-table th {
+            color: var(--text-muted);
+        }
+        
+        body.theme-bright .neo-table td {
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        body.theme-bright .neo-card-header {
+            border-bottom: 1px solid var(--border);
+        }
+        
+        body.theme-bright .neo-btn-primary {
+            background-color: rgba(0, 102, 204, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(0, 102, 204, 0.3);
+        }
+        
+        body.theme-bright .neo-progress {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Radio buttons in bright mode */
+        body.theme-bright input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            vertical-align: middle;
+            margin-right: 8px;
+            background-color: white;
+        }
+        
+        body.theme-bright input[type="radio"]:checked {
+            border-color: var(--primary);
+        }
+        
+        body.theme-bright input[type="radio"]:checked:before {
+            content: "";
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        body.theme-bright input[type="radio"] + label {
+            color: var(--text);
+            cursor: pointer;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        
+        /* Radio container styling */
+        body.theme-bright div[style*="background-color: var(--light-dark)"] {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
         }
         
         .neo-stat-value {
@@ -793,10 +1048,7 @@
                 <i class="fas fa-user-shield"></i>
                 <span>Identity Control</span>
             </a>
-            <a href="#" class="neo-sidebar-link" data-tab="settings">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </a>
+            <!-- Settings tab link removed -->
         </nav>
         
         <div class="px-6">
@@ -834,14 +1086,20 @@
                         
                         <div class="font-mono text-sm whitespace-nowrap" id="packet-counter">0 packets analyzed</div>
                         
-                        <div class="relative">
+                        <div class="relative flex gap-2">
                             <button class="neo-btn neo-btn-primary">
                                 <i class="fas fa-shield-alt"></i>
                                 <span>Protection Status</span>
                             </button>
-                </div>
-            </div>
-        </header>
+                            
+                            <!-- Settings button -->
+                            <button class="neo-btn neo-btn-secondary" onclick="window.open('settings.html', '_blank')">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
 
                 <!-- Alert Banner (Hidden by default) -->
                 <div id="alertBanner" class="neo-alert neo-alert-danger hidden">
@@ -1375,14 +1633,163 @@
                             <i class="fas fa-chart-line text-primary"></i>
                             Traffic Monitoring
                 </h2>
+                        <div class="flex gap-2">
+                            <button id="refresh-traffic-btn" class="neo-btn neo-btn-primary text-sm">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Refresh</span>
+                            </button>
+                        </div>
                     </div>
                     
-                    <div class="h-80 bg-light-dark rounded-lg flex items-center justify-center">
-                        <div class="text-center">
-                            <i class="fas fa-network-wired text-5xl text-primary opacity-40 mb-4 block"></i>
-                            <p class="text-text-muted">Network traffic visualization will appear here</p>
+                    <div id="network-traffic-container" class="h-80 bg-light-dark rounded-lg relative overflow-hidden resource-monitor">
+                        <div class="circuit-bg"></div>
+                        <canvas id="networkTrafficChart" class="w-full h-full p-4"></canvas>
+                        
+                        <!-- Loading state -->
+                        <div id="network-traffic-loading" class="absolute inset-0 bg-light-dark/80 flex items-center justify-center z-10">
+                            <div class="text-center">
+                                <i class="fas fa-network-wired text-5xl text-primary opacity-40 mb-4 block animate-pulse"></i>
+                                <p class="text-text-muted">Loading network traffic data...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Traffic Details -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Traffic Statistics -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-tachometer-alt text-primary"></i>
+                                Traffic Statistics
+                            </h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="bg-light-dark rounded-lg p-4">
+                                <div class="text-sm text-text-muted mb-1">Packets/sec</div>
+                                <div id="network-pps" class="text-2xl font-mono text-primary">0</div>
+                                <div class="neo-progress mt-2">
+                                    <div id="network-pps-bar" class="neo-progress-bar primary" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-light-dark rounded-lg p-4">
+                                <div class="text-sm text-text-muted mb-1">Bandwidth</div>
+                                <div id="network-bandwidth" class="text-2xl font-mono text-secondary">0 MB/s</div>
+                                <div class="neo-progress mt-2">
+                                    <div id="network-bandwidth-bar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #D9980D, var(--secondary));"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>TCP Traffic</span>
+                                    <span id="network-tcp" class="font-mono text-primary">0 pkts/s</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="network-tcp-bar" class="neo-progress-bar primary" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>UDP Traffic</span>
+                                    <span id="network-udp" class="font-mono text-secondary">0 pkts/s</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="network-udp-bar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #D9980D, var(--secondary));"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>ICMP Traffic</span>
+                                    <span id="network-icmp" class="font-mono text-tertiary">0 pkts/s</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="network-icmp-bar" class="neo-progress-bar" style="width: 0%; background: linear-gradient(90deg, #C1175B, var(--tertiary));"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>SYN Packets</span>
+                                    <span id="network-syn" class="font-mono text-danger">0 pkts/s</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="network-syn-bar" class="neo-progress-bar danger" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Traffic Anomalies -->
+                    <div class="neo-card p-6">
+                        <div class="neo-card-header">
+                            <h2 class="neo-card-title">
+                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                Traffic Anomalies
+                            </h2>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-light-dark rounded-lg p-4">
+                                <h3 class="text-sm font-medium mb-3">Anomaly Detection</h3>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm">Confidence Score</span>
+                                    <span id="network-anomaly-score" class="text-sm font-mono text-warning">0%</span>
+                                </div>
+                                <div class="neo-progress">
+                                    <div id="network-anomaly-bar" class="neo-progress-bar warning" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <div id="network-anomalies-list" class="space-y-2">
+                                <!-- Will be populated by JavaScript when anomalies are detected -->
+                                <div class="text-text-muted text-sm text-center py-4">
+                                    No anomalies detected
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Packet Capture Table -->
+                <div class="neo-card p-6 mb-6">
+                    <div class="neo-card-header">
+                        <h2 class="neo-card-title">
+                            <i class="fas fa-table text-primary"></i>
+                            Live Packet Capture
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <div id="packet-capture-status" class="neo-status-badge active text-xs">
+                                <div class="w-2 h-2 rounded-full bg-success"></div>
+                                <span>Capturing</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-auto">
+                        <table class="neo-data-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Source IP</th>
+                                    <th>Destination IP</th>
+                                    <th>Protocol</th>
+                                    <th>Length</th>
+                                    <th>Info</th>
+                                </tr>
+                            </thead>
+                            <tbody id="packet-capture-table">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
@@ -1755,7 +2162,6 @@
                 </div>
             </div>
         </div>
-    </div>
             
             <!-- Settings Tab (Initially Hidden) -->
             <div id="settings" class="tab-pane hidden">
@@ -2162,12 +2568,15 @@
         // Variables to track data
         let totalPackets = 0;
         let attackCount = 0;
+        let activeAttacks = {}; // Track active attacks by source IP
         let trafficChart;
         let lastUpdate = Date.now();
         let sidebarCollapsed = false;
         
         // Tab switching functionality
         function switchTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
             // Hide all tab panes
             document.querySelectorAll('.tab-pane').forEach(pane => {
                 pane.classList.add('hidden');
@@ -2177,8 +2586,11 @@
             // Show the selected tab
             const selectedTab = document.getElementById(tabName);
             if (selectedTab) {
+                console.log('Found tab element:', tabName);
                 selectedTab.classList.remove('hidden');
                 selectedTab.classList.add('active');
+            } else {
+                console.error('Tab not found:', tabName);
             }
             
             // Update sidebar links active state
@@ -2189,6 +2601,17 @@
             const activeLink = document.querySelector(`.neo-sidebar-link[data-tab="${tabName}"]`);
             if (activeLink) {
                 activeLink.classList.add('active');
+            }
+            
+            // Special handling for specific tabs
+            if (tabName === 'settings') {
+                // Make sure settings tab is properly initialized
+                console.log('Initializing settings tab');
+                const settingsTab = document.getElementById('settings');
+                if (settingsTab) {
+                    settingsTab.classList.remove('hidden');
+                    settingsTab.classList.add('active');
+                }
             }
             
             // Update page title
@@ -2291,6 +2714,12 @@
                     e.preventDefault();
                     const tabName = this.getAttribute('data-tab');
                     switchTab(tabName);
+                    
+                    // Initialize network traffic chart when switching to that tab
+                    if (tabName === 'network-traffic') {
+                        initNetworkTrafficChart();
+                        updateNetworkTrafficData();
+                    }
                 });
             });
             
@@ -2305,6 +2734,25 @@
             updateSystemTime();
             setInterval(updateSystemTime, 1000);
             
+            // Periodically clean up stale attacks (every 30 seconds)
+            setInterval(cleanupStaleAttacks, 30000);
+            
+            // Verify the Settings tab exists
+            const settingsTab = document.getElementById('settings');
+            if (!settingsTab) {
+                console.warn('Settings tab not found at page load - creating it');
+                // Create it using the forceShowSettings function, but don't switch to it
+                forceShowSettings();
+                // Hide it again until needed
+                const newSettingsTab = document.getElementById('settings');
+                if (newSettingsTab) {
+                    newSettingsTab.classList.add('hidden');
+                    newSettingsTab.classList.remove('active');
+                }
+            } else {
+                console.log('Settings tab found at page load');
+            }
+            
             const ctx = document.getElementById('trafficChart').getContext('2d');
             trafficChart = new Chart(ctx, {
                 type: 'line',
@@ -2315,11 +2763,21 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            min: 0,
+                            max: null, // Remove fixed max to allow unlimited scaling
+                            suggestedMax: 100, // Initial suggested max
                             grid: {
                                 color: 'rgba(255, 255, 255, 0.05)'
                             },
                             ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                // Format large numbers properly
+                                callback: function(value) {
+                                    if (value >= 1000) {
+                                        return (value / 1000) + 'k';
+                                    }
+                                    return value;
+                                }
                             }
                         },
                         x: {
@@ -2438,6 +2896,14 @@
             
             // Setup setting toggles with notifications
             setupSettingToggles();
+            
+            // Initialize network traffic refresh button
+            document.getElementById('refresh-traffic-btn')?.addEventListener('click', function() {
+                updateNetworkTrafficData();
+            });
+            
+            // Make sure dashboard is shown as the default tab on page load
+            switchTab('dashboard');
         });
         
         // Matrix animation for cybersecurity aesthetic
@@ -2736,8 +3202,15 @@
         socket.on('traffic_stats', function(data) {
             // Update traffic stats
             totalPackets = data.total_packets;
-            document.getElementById('packet-counter').textContent = `${totalPackets.toLocaleString()} packets analyzed`;
-            document.getElementById('total-packets').textContent = totalPackets.toLocaleString();
+            
+            // Properly format large numbers for display
+            document.getElementById('packet-counter').textContent = `${Number(totalPackets).toLocaleString()} packets analyzed`;
+            
+            // Update without formatting first to ensure no rounding
+            const totalPacketsEl = document.getElementById('total-packets');
+            totalPacketsEl.textContent = totalPackets;
+            
+            // Only apply formatting if displayed in another element that needs it
             document.getElementById('suspicious-ips').textContent = data.suspicious_ips;
             document.getElementById('blocked-ips').textContent = data.blocked_ips;
             
@@ -2748,17 +3221,34 @@
                 document.getElementById('packets-per-sec-bar').style.width = `${ppsPercentage}%`;
             }
             
-            // Update SYN packets
+            // Update SYN packets - ensure we handle large numbers correctly
             if (data.syn_packets !== undefined) {
-                document.getElementById('syn-packets').textContent = data.syn_packets;
-                const synPercentage = Math.min((data.syn_packets / 500) * 100, 100);
+                const synPackets = data.syn_packets;
+                document.getElementById('syn-packets').textContent = synPackets;
+                
+                // For bar visualization, handle potentially large counts with logarithmic scale
+                let synPercentage;
+                if (synPackets > 500) {
+                    synPercentage = Math.min(90 + Math.log10(synPackets/500) * 10, 100);
+                } else {
+                    synPercentage = Math.min((synPackets / 500) * 100, 100);
+                }
                 document.getElementById('syn-packets-bar').style.width = `${synPercentage}%`;
                 
-                // Make confidence proportional to SYN packet rate
-                const confidence = Math.min(95, data.syn_packets);
+                // Make confidence proportional to SYN packet rate but cap it 
+                const confidence = Math.min(95, 50 + Math.min(synPackets, 500) / 500 * 45);
                 updateConfidence(confidence);
                 
-                // Periodically simulate new attack detections
+                // Update chart scale if needed
+                if (synPackets > trafficChart.options.scales.y.max) {
+                    // Set new max to be double the current value to avoid frequent scale changes
+                    const newMax = Math.ceil(synPackets * 1.5 / 100) * 100;
+                    trafficChart.options.scales.y.max = newMax;
+                    console.log(`Updated chart scale to ${newMax}`);
+                }
+                
+                // Periodically simulate new attack detections - removed to avoid confusion during flood tests
+                /*
                 if (Math.random() < 0.01 && data.syn_packets > 5) {  // 1% chance
                     const attackTypes = ["SYN Flood", "UDP Flood", "HTTP Flood", "ICMP Flood"];
                     const randomIPs = ["192.168.1.100", "10.0.0.15", "172.16.0.5", "192.168.1.5", "10.0.0.8"];
@@ -2771,6 +3261,7 @@
                     
                     addAttackToTable(mockAttack);
                 }
+                */
             }
             
             // Calculate detection accuracy (normally this would come from the models)
@@ -2830,6 +3321,12 @@
             console.log('Attack detected:', data);
             attackCount++;
             
+            // Track this attack as active
+            activeAttacks[data.source_ip] = {
+                type: data.type,
+                timestamp: Date.now()
+            };
+            
             // Show alert banner
             const alertBanner = document.getElementById('alertBanner');
             alertBanner.classList.remove('hidden');
@@ -2847,6 +3344,9 @@
             // Auto-hide alert after 10 seconds
             setTimeout(() => {
                 alertBanner.classList.add('hidden');
+                
+                // After hiding, check if this was the last active attack
+                delete activeAttacks[data.source_ip];
             }, 10000);
         });
         
@@ -2855,13 +3355,48 @@
             document.getElementById('status-indicator').classList.remove('active', 'warning');
             document.getElementById('status-indicator').classList.add('danger');
             document.getElementById('status-indicator').innerHTML = '<div class="w-2 h-2 rounded-full bg-danger"></div><span>Connection Error</span>';
+            
+            // Only hide the DDoS alert banner if there's no active attack
+            const alertBanner = document.getElementById('alertBanner');
+            const hasActiveAttacks = Object.keys(activeAttacks).length > 0;
+            
+            // If there's no active attack, show connection error
+            if (!hasActiveAttacks) {
+                if (!alertBanner.classList.contains('hidden')) {
+                    alertBanner.classList.add('hidden');
+                }
+                
+                // Update alert details in case the alert is shown later
+                document.querySelector('#alertBanner h3').textContent = 'Connection Error';
+                document.getElementById('alert-details').textContent = 'Unable to connect to the backend server';
+            }
+            // If there's an active attack, leave the DDoS alert visible
+        });
+        
+        // Handle forced refresh events from server
+        socket.on('force_refresh', function(data) {
+            console.log('Force refresh received:', data);
+            // Immediately fetch latest stats
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    // Update dashboard with latest data
+                    updateDashboard(data);
+                    // Force chart update
+                    trafficChart.update();
+                })
+                .catch(err => console.error('Error during forced refresh:', err));
         });
         
         // Helper functions
         function updateTrafficChart(data) {
+            // Store data for future reference
+            const synPackets = data.syn_packets || 0;
+            const pps = data.packets_per_second || 0;
+            
             // Add new data points
-            trafficData.datasets[0].data.push(data.packets_per_second || 0);
-            trafficData.datasets[1].data.push(data.syn_packets || 0);
+            trafficData.datasets[0].data.push(pps);
+            trafficData.datasets[1].data.push(synPackets);
             
             // Remove oldest data points
             trafficData.datasets[0].data.shift();
@@ -2873,8 +3408,32 @@
             trafficData.labels.push(timeString);
             trafficData.labels.shift();
             
-            // Update chart
-            trafficChart.update();
+            // Store total packets for display elsewhere
+            totalPackets = data.total_packets;
+            
+            // Force scale adjustment if needed for larger numbers
+            const maxValue = Math.max(
+                ...trafficData.datasets[0].data,
+                ...trafficData.datasets[1].data
+            );
+            
+            // Dynamic scale adjustment based on current values
+            if (maxValue > (trafficChart.options.scales.y.suggestedMax || 100) * 0.85) {
+                // Use ceiling to next power of 10 for cleaner scales with large numbers
+                const newMax = Math.pow(10, Math.ceil(Math.log10(maxValue * 1.5)));
+                trafficChart.options.scales.y.suggestedMax = newMax;
+                console.log(`Auto-adjusted chart scale to ${newMax}`);
+            }
+            
+            // Update chart with animation only for smaller changes
+            if (maxValue > 1000) {
+                trafficChart.options.animation.duration = 0;
+            } else {
+                trafficChart.options.animation.duration = 300;
+            }
+            
+            // Force immediate update
+            trafficChart.update('none');
         }
         
         function updateConfidence(value) {
@@ -2927,7 +3486,8 @@
             
             // Update the packet counter (simulate continued counting even without updates)
             const packetCounter = document.getElementById('packet-counter');
-            const currentCount = parseInt(totalPackets) + (secondsElapsed * 100); // Assume 100 packets per second
+            // Use Number() to ensure numeric addition without string concatenation
+            const currentCount = Number(totalPackets) + (secondsElapsed * 100); // Assume 100 packets per second
             packetCounter.textContent = `${currentCount.toLocaleString()} packets analyzed`;
         }
         
@@ -3835,6 +4395,703 @@
                     document.head.removeChild(style);
                 }, 300);
             }
+        }
+
+        // Update dashboard with data from server
+        function updateDashboard(data) {
+            // Update stats - use raw number without formatting to ensure no rounding
+            document.getElementById('total-packets').textContent = data.total_packets;
+            document.getElementById('suspicious-ips').textContent = data.suspicious_ips;
+            document.getElementById('blocked-ips').textContent = data.blocked_ips;
+            
+            // Update progress bars
+            document.getElementById('packets-per-sec').textContent = data.packets_per_second;
+            document.getElementById('packets-per-sec-bar').style.width = Math.min(data.packets_per_second / 10, 100) + '%';
+            
+            document.getElementById('syn-packets').textContent = data.syn_packets;
+            document.getElementById('syn-packets-bar').style.width = Math.min(data.syn_packets / 10, 100) + '%';
+            
+            const networkThroughput = Math.round(data.bytes_per_second / (1024 * 1024) * 100) / 100;
+            document.getElementById('network-throughput').textContent = networkThroughput + ' MB/s';
+            document.getElementById('network-throughput-bar').style.width = Math.min(networkThroughput * 10, 100) + '%';
+            
+            // Update traffic chart
+            updateTrafficChart(data);
+            
+            // Update system metrics
+            document.getElementById('cpuUsage').textContent = Math.round(data.system.cpu) + '%';
+            document.getElementById('cpuBar').style.width = data.system.cpu + '%';
+            
+            document.getElementById('memoryUsage').textContent = Math.round(data.system.memory) + '%';
+            document.getElementById('memoryBar').style.width = data.system.memory + '%';
+            
+            const networkUsageValue = Math.round((data.system.network_io.bytes_sent + data.system.network_io.bytes_recv) / 1024 / 1024);
+            document.getElementById('networkUsage').textContent = networkUsageValue + ' MB/s';
+            document.getElementById('networkBar').style.width = Math.min(networkUsageValue * 5, 100) + '%';
+            
+            // Update firewall rules counter
+            document.getElementById('firewall-rules').textContent = data.firewall_rules + ' active';
+            
+            // Update mitigation effectiveness
+            document.getElementById('mitigationValue').textContent = data.mitigation_effectiveness + '%';
+            document.getElementById('mitigationBar').style.width = data.mitigation_effectiveness + '%';
+            
+            // Update status indicator based on traffic
+            if (data.suspicious_ips > 5) {
+                document.getElementById('status-indicator').classList.remove('active', 'danger');
+                document.getElementById('status-indicator').classList.add('warning');
+                document.getElementById('status-indicator').innerHTML = '<div class="w-2 h-2 rounded-full bg-warning"></div><span>Under Attack</span>';
+            } else {
+                document.getElementById('status-indicator').classList.remove('warning', 'danger');
+                document.getElementById('status-indicator').classList.add('active');
+                document.getElementById('status-indicator').innerHTML = '<div class="w-2 h-2 rounded-full bg-success"></div><span>Protected</span>';
+            }
+            
+            // Update total packets in header
+            document.getElementById('packet-counter').textContent = data.total_packets.toLocaleString() + ' packets analyzed';
+            
+            // Update protocol distribution
+            if (data.protocol_distribution) {
+                // Calculate total for accurate percentages
+                const total = data.protocol_distribution.tcp + data.protocol_distribution.udp + data.protocol_distribution.icmp;
+                
+                // Update protocol chart
+                updateProtocolChart(data.protocol_distribution);
+                
+                // Update protocol distribution percentages
+                document.getElementById('tcp-percent').textContent = `${Math.round((data.protocol_distribution.tcp / total) * 100)}%`;
+                document.getElementById('udp-percent').textContent = `${Math.round((data.protocol_distribution.udp / total) * 100)}%`;
+                document.getElementById('icmp-percent').textContent = `${Math.round((data.protocol_distribution.icmp / total) * 100)}%`;
+            }
+            
+            // Update packet types chart
+            updatePacketTypesChart(data);
+            
+            // Update attack distribution chart
+            updateAttackDistributionChart(data);
+        }
+
+        // Function to clean up stale attacks (older than 2 minutes)
+        function cleanupStaleAttacks() {
+            const now = Date.now();
+            const twoMinutesMs = 2 * 60 * 1000;
+            
+            Object.keys(activeAttacks).forEach(ip => {
+                if (now - activeAttacks[ip].timestamp > twoMinutesMs) {
+                    console.log(`Cleaning up stale attack from ${ip}`);
+                    delete activeAttacks[ip];
+                }
+            });
+        }
+
+        // Network Traffic Chart
+        let networkTrafficChart;
+        let packetCaptureData = [];
+
+        // Initialize network traffic chart
+        function initNetworkTrafficChart() {
+            // If chart already exists, destroy it first
+            if (networkTrafficChart) {
+                networkTrafficChart.destroy();
+            }
+            
+            const ctx = document.getElementById('networkTrafficChart').getContext('2d');
+            
+            // Create data structure for the chart
+            const networkData = {
+                labels: Array(30).fill(''),
+                datasets: [
+                    {
+                        label: 'Total Traffic',
+                        data: Array(30).fill(0),
+                        borderColor: 'rgba(35, 200, 255, 1)',
+                        backgroundColor: 'rgba(35, 200, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'TCP Traffic',
+                        data: Array(30).fill(0),
+                        borderColor: 'rgba(28, 239, 175, 1)',
+                        backgroundColor: 'rgba(28, 239, 175, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'UDP Traffic',
+                        data: Array(30).fill(0),
+                        borderColor: 'rgba(255, 182, 41, 1)',
+                        backgroundColor: 'rgba(255, 182, 41, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'SYN Packets',
+                        data: Array(30).fill(0),
+                        borderColor: 'rgba(255, 82, 82, 1)',
+                        backgroundColor: 'rgba(255, 82, 82, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            };
+            
+            // Create the chart
+            networkTrafficChart = new Chart(ctx, {
+                type: 'line',
+                data: networkData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            min: 0,
+                            suggestedMax: 100,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                // Format large numbers properly
+                                callback: function(value) {
+                                    if (value >= 1000) {
+                                        return (value / 1000) + 'k';
+                                    }
+                                    return value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 300
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Hide loading indicator
+            document.getElementById('network-traffic-loading').style.display = 'none';
+        }
+
+        // Update network traffic data
+        function updateNetworkTrafficData() {
+            // Show loading indicator
+            document.getElementById('network-traffic-loading').style.display = 'flex';
+            
+            // Fetch latest stats
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    // Update chart with new data
+                    updateNetworkTrafficChart(data);
+                    
+                    // Update traffic statistics
+                    updateNetworkTrafficStats(data);
+                    
+                    // Update packet capture table
+                    updatePacketCaptureTable(data);
+                    
+                    // Hide loading indicator
+                    document.getElementById('network-traffic-loading').style.display = 'none';
+                })
+                .catch(err => {
+                    console.error('Error fetching network traffic data:', err);
+                    
+                    // If there's an active attack, simulate data even if backend is down
+                    if (Object.keys(activeAttacks).length > 0) {
+                        simulateNetworkTrafficData();
+                    }
+                    
+                    // Hide loading indicator
+                    document.getElementById('network-traffic-loading').style.display = 'none';
+                });
+        }
+
+        // Update network traffic chart with new data
+        function updateNetworkTrafficChart(data) {
+            if (!networkTrafficChart) return;
+            
+            // Extract data from the stats
+            const totalTraffic = data.packets_per_second || 0;
+            const tcpTraffic = data.protocol_distribution?.tcp || 0;
+            const udpTraffic = data.protocol_distribution?.udp || 0;
+            const synPackets = data.syn_packets || 0;
+            
+            // Add new data points
+            networkTrafficChart.data.datasets[0].data.push(totalTraffic);
+            networkTrafficChart.data.datasets[1].data.push(tcpTraffic);
+            networkTrafficChart.data.datasets[2].data.push(udpTraffic);
+            networkTrafficChart.data.datasets[3].data.push(synPackets);
+            
+            // Remove oldest data points
+            networkTrafficChart.data.datasets[0].data.shift();
+            networkTrafficChart.data.datasets[1].data.shift();
+            networkTrafficChart.data.datasets[2].data.shift();
+            networkTrafficChart.data.datasets[3].data.shift();
+            
+            // Update timestamp labels
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'});
+            networkTrafficChart.data.labels.push(timeString);
+            networkTrafficChart.data.labels.shift();
+            
+            // Dynamic scale adjustment based on current values
+            const maxValue = Math.max(
+                ...networkTrafficChart.data.datasets[0].data,
+                ...networkTrafficChart.data.datasets[1].data,
+                ...networkTrafficChart.data.datasets[2].data,
+                ...networkTrafficChart.data.datasets[3].data
+            );
+            
+            if (maxValue > (networkTrafficChart.options.scales.y.suggestedMax || 100) * 0.85) {
+                // Use ceiling to next power of 10 for cleaner scales with large numbers
+                const newMax = Math.pow(10, Math.ceil(Math.log10(maxValue * 1.5)));
+                networkTrafficChart.options.scales.y.suggestedMax = newMax;
+            }
+            
+            // Update chart
+            networkTrafficChart.update();
+        }
+
+        // Update network traffic statistics
+        function updateNetworkTrafficStats(data) {
+            // Update packets per second
+            const pps = data.packets_per_second || 0;
+            document.getElementById('network-pps').textContent = pps;
+            document.getElementById('network-pps-bar').style.width = `${Math.min(pps / 10, 100)}%`;
+            
+            // Update bandwidth
+            const bandwidth = ((data.bytes_per_second || 0) / (1024 * 1024)).toFixed(2);
+            document.getElementById('network-bandwidth').textContent = `${bandwidth} MB/s`;
+            document.getElementById('network-bandwidth-bar').style.width = `${Math.min(bandwidth * 10, 100)}%`;
+            
+            // Update protocol statistics
+            const tcpTraffic = data.protocol_distribution?.tcp || 0;
+            const udpTraffic = data.protocol_distribution?.udp || 0;
+            const icmpTraffic = data.protocol_distribution?.icmp || 0;
+            const synPackets = data.syn_packets || 0;
+            
+            document.getElementById('network-tcp').textContent = `${tcpTraffic} pkts/s`;
+            document.getElementById('network-tcp-bar').style.width = `${Math.min(tcpTraffic / 10, 100)}%`;
+            
+            document.getElementById('network-udp').textContent = `${udpTraffic} pkts/s`;
+            document.getElementById('network-udp-bar').style.width = `${Math.min(udpTraffic / 10, 100)}%`;
+            
+            document.getElementById('network-icmp').textContent = `${icmpTraffic} pkts/s`;
+            document.getElementById('network-icmp-bar').style.width = `${Math.min(icmpTraffic / 10, 100)}%`;
+            
+            document.getElementById('network-syn').textContent = `${synPackets} pkts/s`;
+            document.getElementById('network-syn-bar').style.width = `${Math.min(synPackets / 10, 100)}%`;
+            
+            // Update anomaly detection
+            const anomalyScore = Math.min(95, 50 + Math.min(synPackets, 500) / 500 * 45);
+            document.getElementById('network-anomaly-score').textContent = `${Math.round(anomalyScore)}%`;
+            document.getElementById('network-anomaly-bar').style.width = `${anomalyScore}%`;
+            
+            // Update anomalies list
+            updateAnomaliesList(data);
+        }
+
+        // Update anomalies list
+        function updateAnomaliesList(data) {
+            const anomaliesList = document.getElementById('network-anomalies-list');
+            
+            // Clear existing content
+            anomaliesList.innerHTML = '';
+            
+            // Check if there are active attacks
+            const hasActiveAttacks = Object.keys(activeAttacks).length > 0;
+            
+            // If there are active attacks or high SYN packet count, show anomalies
+            if (hasActiveAttacks || (data.syn_packets && data.syn_packets > 10)) {
+                // Add anomalies based on active attacks
+                Object.keys(activeAttacks).forEach(ip => {
+                    const attack = activeAttacks[ip];
+                    const anomalyItem = document.createElement('div');
+                    anomalyItem.className = 'bg-danger/10 border border-danger/30 rounded-lg p-3 text-sm';
+                    anomalyItem.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle text-danger"></i>
+                                <span class="font-medium">${attack.type}</span>
+                            </div>
+                            <span class="text-xs text-text-muted">${new Date(attack.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <div class="mt-1 font-mono text-xs">Source IP: ${ip}</div>
+                    `;
+                    anomaliesList.appendChild(anomalyItem);
+                });
+                
+                // If high SYN packet count but no active attacks, add a warning
+                if (!hasActiveAttacks && data.syn_packets > 10) {
+                    const anomalyItem = document.createElement('div');
+                    anomalyItem.className = 'bg-warning/10 border border-warning/30 rounded-lg p-3 text-sm';
+                    anomalyItem.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                <span class="font-medium">Elevated SYN Traffic</span>
+                            </div>
+                            <span class="text-xs text-text-muted">${new Date().toLocaleTimeString()}</span>
+                        </div>
+                        <div class="mt-1">Unusual number of SYN packets detected: ${data.syn_packets}/s</div>
+                    `;
+                    anomaliesList.appendChild(anomalyItem);
+                }
+            } else {
+                // No anomalies detected
+                anomaliesList.innerHTML = `
+                    <div class="text-text-muted text-sm text-center py-4">
+                        No anomalies detected
+                    </div>
+                `;
+            }
+        }
+
+        // Update packet capture table
+        function updatePacketCaptureTable(data) {
+            const packetTable = document.getElementById('packet-capture-table');
+            
+            // Generate some packet data based on the current statistics
+            generatePacketData(data);
+            
+            // Clear existing rows
+            packetTable.innerHTML = '';
+            
+            // Add packet data to the table (most recent first)
+            packetCaptureData.slice(0, 10).forEach(packet => {
+                const row = document.createElement('tr');
+                
+                // Add class for attack packets
+                if (packet.isAttack) {
+                    row.className = 'bg-danger/10';
+                }
+                
+                row.innerHTML = `
+                    <td class="text-text-muted">${packet.time}</td>
+                    <td class="font-mono">${packet.sourceIP}</td>
+                    <td class="font-mono">${packet.destIP}</td>
+                    <td>${packet.protocol}</td>
+                    <td>${packet.length}</td>
+                    <td class="text-xs ${packet.isAttack ? 'text-danger' : ''}">${packet.info}</td>
+                `;
+                
+                packetTable.appendChild(row);
+            });
+        }
+
+        // Generate packet data based on current statistics
+        function generatePacketData(data) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {hour12: false});
+            
+            // Generate normal traffic packets
+            for (let i = 0; i < 3; i++) {
+                const protocols = ['TCP', 'UDP', 'ICMP'];
+                const protocol = protocols[Math.floor(Math.random() * protocols.length)];
+                
+                const sourceIPs = ['192.168.1.100', '10.0.0.15', '172.16.0.5', '192.168.1.5', '10.0.0.8'];
+                const sourceIP = sourceIPs[Math.floor(Math.random() * sourceIPs.length)];
+                
+                const destIPs = ['192.168.1.1', '192.168.1.10', '192.168.1.254'];
+                const destIP = destIPs[Math.floor(Math.random() * destIPs.length)];
+                
+                const length = Math.floor(Math.random() * 1000) + 64;
+                
+                let info = '';
+                if (protocol === 'TCP') {
+                    const ports = [80, 443, 22, 21, 8080];
+                    const srcPort = Math.floor(Math.random() * 60000) + 1024;
+                    const destPort = ports[Math.floor(Math.random() * ports.length)];
+                    info = `${srcPort} → ${destPort} [${Math.random() > 0.8 ? 'SYN' : 'ACK'}]`;
+                } else if (protocol === 'UDP') {
+                    const ports = [53, 123, 161, 1900, 5353];
+                    const srcPort = Math.floor(Math.random() * 60000) + 1024;
+                    const destPort = ports[Math.floor(Math.random() * ports.length)];
+                    info = `${srcPort} → ${destPort} Len=${length}`;
+                } else {
+                    info = 'Echo (ping) request';
+                }
+                
+                packetCaptureData.unshift({
+                    time: timeString,
+                    sourceIP,
+                    destIP,
+                    protocol,
+                    length,
+                    info,
+                    isAttack: false
+                });
+            }
+            
+            // If there are active attacks, generate attack packets
+            if (Object.keys(activeAttacks).length > 0) {
+                for (const ip in activeAttacks) {
+                    const attack = activeAttacks[ip];
+                    const protocol = attack.type.includes('SYN') ? 'TCP' : 
+                                    attack.type.includes('UDP') ? 'UDP' : 'ICMP';
+                    
+                    const destIPs = ['192.168.1.1', '192.168.1.10', '192.168.1.254'];
+                    const destIP = destIPs[Math.floor(Math.random() * destIPs.length)];
+                    
+                    let info = '';
+                    if (protocol === 'TCP') {
+                        const ports = [80, 443, 22, 21, 8080];
+                        const srcPort = Math.floor(Math.random() * 60000) + 1024;
+                        const destPort = ports[Math.floor(Math.random() * ports.length)];
+                        info = `${srcPort} → ${destPort} [SYN] Suspicious Traffic`;
+                    } else if (protocol === 'UDP') {
+                        const ports = [53, 123, 161, 1900, 5353];
+                        const srcPort = Math.floor(Math.random() * 60000) + 1024;
+                        const destPort = ports[Math.floor(Math.random() * ports.length)];
+                        info = `${srcPort} → ${destPort} Amplification Attack`;
+                    } else {
+                        info = 'ICMP Flood Attack';
+                    }
+                    
+                    packetCaptureData.unshift({
+                        time: timeString,
+                        sourceIP: ip,
+                        destIP,
+                        protocol,
+                        length: Math.floor(Math.random() * 1000) + 64,
+                        info,
+                        isAttack: true
+                    });
+                }
+            }
+            
+            // Limit packet data to 100 entries
+            if (packetCaptureData.length > 100) {
+                packetCaptureData = packetCaptureData.slice(0, 100);
+            }
+        }
+
+        // Simulate network traffic data when backend is down but attacks are active
+        function simulateNetworkTrafficData() {
+            // Create simulated data based on active attacks
+            const simulatedData = {
+                packets_per_second: Math.floor(Math.random() * 500) + 500,
+                bytes_per_second: Math.floor(Math.random() * 10000000) + 5000000,
+                syn_packets: Math.floor(Math.random() * 300) + 200,
+                protocol_distribution: {
+                    tcp: Math.floor(Math.random() * 400) + 300,
+                    udp: Math.floor(Math.random() * 200) + 100,
+                    icmp: Math.floor(Math.random() * 50) + 10
+                }
+            };
+            
+            // Update chart with simulated data
+            updateNetworkTrafficChart(simulatedData);
+            
+            // Update traffic statistics
+            updateNetworkTrafficStats(simulatedData);
+            
+            // Update packet capture table
+            updatePacketCaptureTable(simulatedData);
+        }
+
+        // Function to force the settings tab to be displayed
+        function forceShowSettings(e) {
+            // Prevent default navigation
+            if (e) e.preventDefault();
+            
+            console.log('Force showing settings tab with direct DOM manipulation');
+            
+            try {
+                // Get the settings tab and its content
+                let settingsTab = document.getElementById('settings');
+                const tabContent = document.getElementById('tab-content');
+                
+                if (!settingsTab) {
+                    console.error('Settings tab not found! Creating it...');
+                    
+                    // If settings tab doesn't exist, create it directly
+                    const newSettingsTab = document.createElement('div');
+                    newSettingsTab.id = 'settings';
+                    newSettingsTab.className = 'tab-pane';
+                    
+                    // Add the content from the HTML template
+                    newSettingsTab.innerHTML = `
+                        <!-- Header -->
+                        <header class="neo-header flex items-center justify-between mb-6">
+                            <div>
+                                <h1 class="text-2xl font-bold text-white">System Settings</h1>
+                                <p class="text-text-muted mt-1">Configure system preferences and appearance</p>
+                            </div>
+                            
+                            <div class="flex items-center gap-4">
+                                <button id="save-settings-btn" class="neo-btn neo-btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    <span>Save Changes</span>
+                                </button>
+                            </div>
+                        </header>
+                        
+                        <!-- Settings Content -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Appearance Settings -->
+                            <div class="neo-card p-6">
+                                <div class="neo-card-header">
+                                    <h2 class="neo-card-title">
+                                        <i class="fas fa-palette text-primary"></i>
+                                        Appearance
+                                    </h2>
+                                </div>
+                                
+                                <div class="space-y-6">
+                                    <!-- Theme Selection -->
+                                    <div>
+                                        <h3 class="text-sm font-medium mb-4">Theme</h3>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div id="theme-cybershield" class="theme-option selected cursor-pointer">
+                                                <div class="h-20 rounded-lg bg-dark border-2 border-primary flex items-center justify-center mb-2">
+                                                    <span class="text-primary font-medium">CyberShield</span>
+                                                </div>
+                                                <div class="flex justify-center">
+                                                    <div class="w-4 h-4 rounded-full border-2 border-primary bg-primary"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div id="theme-midnight" class="theme-option cursor-pointer">
+                                                <div class="h-20 rounded-lg bg-[#030B16] border-2 border-[#7B42F6] flex items-center justify-center mb-2">
+                                                    <span class="text-[#7B42F6] font-medium">Midnight</span>
+                                                </div>
+                                                <div class="flex justify-center">
+                                                    <div class="w-4 h-4 rounded-full border-2 border-primary"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- UI Density -->
+                                    <div>
+                                        <h3 class="text-sm font-medium mb-3">UI Density</h3>
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-compress text-text-muted"></i>
+                                                <span class="text-sm">Compact</span>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer w-16">
+                                                <input type="checkbox" id="density-toggle" class="sr-only">
+                                                <div class="w-11 h-6 bg-light-dark rounded-full border border-border peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- System Configuration -->
+                            <div class="neo-card p-6">
+                                <div class="neo-card-header">
+                                    <h2 class="neo-card-title">
+                                        <i class="fas fa-wrench text-tertiary"></i>
+                                        System Configuration
+                                    </h2>
+                                </div>
+                                
+                                <div class="space-y-6">
+                                    <!-- Protection Mode -->
+                                    <div>
+                                        <h3 class="text-sm font-medium mb-3">Protection Mode</h3>
+                                        <div class="bg-light-dark rounded-lg p-4 space-y-3 protection-mode-container">
+                                            <div class="flex items-center">
+                                                <input type="radio" id="protection-normal" name="protection-mode" class="hidden peer" checked>
+                                                <label for="protection-normal" class="flex items-center justify-between w-full cursor-pointer p-2 rounded-lg peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:border-primary/30 border border-transparent">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center border-text-muted peer-checked:border-primary">
+                                                            <div class="w-3 h-3 rounded-full bg-primary opacity-0 peer-checked:opacity-100"></div>
+                                                        </div>
+                                                        <span>Normal Protection</span>
+                                                    </div>
+                                                    <span class="text-xs">Recommended</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Append to tab content
+                    if (tabContent) {
+                        tabContent.appendChild(newSettingsTab);
+                        settingsTab = newSettingsTab; // Update the reference
+                    } else {
+                        console.error('Tab content container not found!');
+                        
+                        // Try to create tab content
+                        const mainContent = document.getElementById('main-content');
+                        if (mainContent) {
+                            const newTabContent = document.createElement('div');
+                            newTabContent.id = 'tab-content';
+                            mainContent.appendChild(newTabContent);
+                            newTabContent.appendChild(newSettingsTab);
+                            settingsTab = newSettingsTab; // Update the reference
+                            console.log('Created new tab content container');
+                        }
+                    }
+                }
+                
+                // Hide all tab panes
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.add('hidden');
+                    pane.classList.remove('active');
+                });
+                
+                // Remove active class from all sidebar links
+                document.querySelectorAll('.neo-sidebar-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Add active class to settings link
+                const settingsLink = document.querySelector('.neo-sidebar-link[data-tab="settings"]');
+                if (settingsLink) {
+                    settingsLink.classList.add('active');
+                }
+                
+                // Show settings tab - get the current reference
+                if (settingsTab) {
+                    settingsTab.classList.remove('hidden');
+                    settingsTab.classList.add('active');
+                    console.log('Settings tab made visible');
+                    
+                    // Initialize settings functionality if needed
+                    if (typeof initSettings === 'function') {
+                        try {
+                            initSettings();
+                            console.log('Settings initialized');
+                        } catch (err) {
+                            console.error('Error initializing settings:', err);
+                        }
+                    }
+                    
+                    // Update page title
+                    document.title = 'CyberShield - Settings';
+                } else {
+                    console.error('Settings tab still not found after creation attempt!');
+                }
+            } catch (err) {
+                console.error('Error showing settings tab:', err);
+            }
+            
+            return false;
         }
     </script>
 </body>
